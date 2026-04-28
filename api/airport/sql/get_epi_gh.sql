@@ -1,0 +1,37 @@
+SELECT SUBSTR(A.BAS_YM, 1, 4) AS YYYY,
+       ROUND(SUM(A.GAS + A.LIQUID+ A.CAR), 3) FUEL1,
+       ROUND(SUM(A.ELEC + A.SF6 + A.SEWAGE + A.SCOPE3_1+ A.SCOPE3_2 + A.STEAM1 + A.STEAM2 + A.DEGU), 3) FUEL2,
+       ROUND(SUM(A.TOT_EM_TCO2EQ), 3) TOTAL_TCO2E 
+  FROM 
+       (SELECT A.BAS_YM,
+              NVL(DECODE(A.ACT_CD_ID, 00113, SUM(A.TOT_EM_TCO2EQ)), 0) AS GAS, 
+              NVL(DECODE(A.ACT_CD_ID, 00114, SUM(A.TOT_EM_TCO2EQ)), 0) AS LIQUID, 
+              NVL(DECODE(A.ACT_CD_ID, 00116, SUM(A.TOT_EM_TCO2EQ)), 0) AS CAR, 
+              NVL(DECODE(A.ACT_CD_ID, 00155, SUM(A.TOT_EM_TCO2EQ)), 0) AS SF6, 
+              NVL(DECODE(A.ACT_CD_ID, 00160, SUM(A.TOT_EM_TCO2EQ)), 0) AS SEWAGE, 
+              NVL(DECODE(A.ACT_CD_ID, 00165, SUM(A.TOT_EM_TCO2EQ)), 0) AS ELEC, 
+              NVL(DECODE(A.ACT_CD_ID, 00167, SUM(A.TOT_EM_TCO2EQ)), 0) AS SCOPE3_1, 
+              NVL(DECODE(A.ACT_CD_ID, 01718, SUM(A.TOT_EM_TCO2EQ)), 0) AS SCOPE3_2, 
+              NVL(DECODE(A.ACT_CD_ID, 01741, SUM(A.TOT_EM_TCO2EQ)), 0) AS STEAM1, 
+              NVL(DECODE(A.ACT_CD_ID, 01742, SUM(A.TOT_EM_TCO2EQ)), 0) AS STEAM2, 
+              NVL(DECODE(A.ACT_CD_ID, 01775, SUM(A.TOT_EM_TCO2EQ)), 0) AS DEGU,
+              NVL(SUM(A.TOT_EM_TCO2EQ), 0) TOT_EM_TCO2EQ
+         FROM 
+              (SELECT A.BAS_YM,
+                     A.ACT_CD_ID, 
+                     A.TOT_EM_TCO2EQ
+                FROM NGHG_KAC.TB_GHG_EM_STAT A 
+               WHERE  1=1
+
+	       
+	       
+
+	       
+
+
+              )A 
+        GROUP BY A.BAS_YM,
+              A.ACT_CD_ID 
+       ) A 
+ GROUP BY SUBSTR(A.BAS_YM, 1, 4)
+ORDER BY SUBSTR(A.BAS_YM, 1, 4)
