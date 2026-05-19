@@ -45,6 +45,10 @@ venv.bak/
 *.swo
 *~
 
+# Logs
+logs/
+*.log
+
 # User specific folders & Unnecessary documents
 MD/
 *.xlsx

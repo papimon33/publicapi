@@ -1,8 +1,0 @@
-2026-05-16 14:13:08 | INFO     | api.access | 172.21.0.1 "GET /api/airport/lease-contract" 200 189.9ms
-2026-05-16 14:13:26 | INFO     | api.access | 172.21.0.1 "GET /api/airport/lease-contract" 200 23.4ms
-2026-05-16 14:43:13 | INFO     | api.access | 172.21.0.1 "GET /public/airport/lease-contract" 200 164.0ms
-2026-05-16 14:43:17 | INFO     | api.access | 172.21.0.1 "GET /public/airport/lease-contract" 200 19.7ms
-2026-05-16 14:43:22 | INFO     | api.access | 172.21.0.1 "GET /public/airport/airport-code" 200 27.1ms
-2026-05-16 14:45:39 | INFO     | api.access | 172.21.0.1 "GET /public/airport/lease-contract" 200 17.4ms
-2026-05-16 14:45:40 | INFO     | api.access | 172.21.0.1 "GET /public/airport/lease-contract" 200 17.1ms
-2026-05-16 14:47:40 | INFO     | api.access | 172.21.0.1 "GET /public/airport/lease-contract" 200 21.7ms

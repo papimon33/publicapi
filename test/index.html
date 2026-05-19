@@ -178,6 +178,19 @@
   }
   .col-title .col-label-new  { color: #34d399; }
   .col-title .col-label-sql  { color: #60a5fa; }
+  .col-title { display: flex; justify-content: space-between; align-items: center; }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid #374151;
+    color: #9ca3af;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .copy-btn:hover { background: #374151; color: #e5e7eb; }
+  .copy-btn.copied { border-color: #34d399; color: #34d399; }
   .response-body {
     padding: 20px;
     overflow-y: auto;
@@ -188,7 +201,10 @@
     font-size: 0.9rem;
     white-space: pre-wrap;
   }
-  .response-body.legacy { color: #fde68a; }
+  .sql-keyword { color: #60a5fa; font-weight: 600; }
+  .sql-string  { color: #34d399; }
+  .sql-number  { color: #f59e0b; }
+  .sql-comment { color: #6b7280; font-style: italic; }
   .spinner {
     display: inline-block;
     width: 14px; height: 14px;
@@ -410,10 +426,27 @@ function renderTab(route) {
 
     const col2 = document.createElement('div');
     col2.className = 'response-col';
-    col2.innerHTML = `<div class="col-title"><span class="col-label-sql">● SQL</span></div>`;
+    const col2Title = document.createElement('div');
+    col2Title.className = 'col-title';
+    col2Title.innerHTML = `<span class="col-label-sql">● SQL</span>`;
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'copy-btn';
+    copyBtn.textContent = 'Copy';
+    col2Title.appendChild(copyBtn);
+    col2.appendChild(col2Title);
     const sqlBody = document.createElement('pre');
     sqlBody.className = 'response-body';
     col2.appendChild(sqlBody);
+
+    copyBtn.onclick = () => {
+      const text = sqlBody.textContent;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        copyBtn.textContent = 'Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(() => { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 1500);
+      });
+    };
 
     splitView.appendChild(col1);
     splitView.appendChild(col2);
@@ -457,10 +490,80 @@ async function fetchJson(url) {
   return { status: res.status, statusText: res.statusText, ok: res.ok, text };
 }
 
+function bindParams(sql, params) {
+  if (!params || params.length === 0) return sql;
+  let i = 0;
+  return sql.replace(/\?/g, () => {
+    if (i >= params.length) return '?';
+    const val = params[i++];
+    // NULL이면 그대로, 숫자면 그대로, 문자열이면 작은따옴표로 감싸기
+    if (val === 'NULL') return 'NULL';
+    if (/^-?\d+(\.\d+)?$/.test(val)) return val;
+    return `'${val.replace(/'/g, "''")}'`;
+  });
+}
+
+function formatSqlText(sql) {
+  // 문자열 리터럴을 플레이스홀더로 보호
+  const strings = [];
+  sql = sql.replace(/'([^']|'')*'/g, m => { strings.push(m); return `\x00STR${strings.length - 1}\x00`; });
+
+  // 공백 정규화
+  sql = sql.replace(/\s+/g, ' ').trim();
+
+  // 줄바꿈 규칙: 주요 키워드 앞에 개행
+  const topLevel = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'ORDER BY', 'HAVING', 'UNION ALL', 'UNION', 'LIMIT'];
+  topLevel.forEach(kw => {
+    sql = sql.replace(new RegExp(`\\s+${kw}\\b`, 'gi'), m => '\n' + m.trim());
+  });
+
+  // AND / OR 는 WHERE 블록 안에서 개행 + 들여쓰기
+  sql = sql.replace(/\s+(AND|OR)\s+/gi, (_, kw) => `\n    ${kw.toUpperCase()} `);
+
+  // 서브쿼리 들여쓰기
+  let depth = 0;
+  let result = '';
+  for (let i = 0; i < sql.length; i++) {
+    const ch = sql[i];
+    if (ch === '(') {
+      depth++;
+      result += '(\n' + '    '.repeat(depth);
+    } else if (ch === ')') {
+      depth = Math.max(0, depth - 1);
+      result += '\n' + '    '.repeat(depth) + ')';
+    } else if (ch === '\n') {
+      result += '\n' + '    '.repeat(depth);
+    } else {
+      result += ch;
+    }
+  }
+
+  // 플레이스홀더 복원
+  result = result.replace(/\x00STR(\d+)\x00/g, (_, i) => strings[+i]);
+
+  // 연속 빈줄 제거
+  return result.replace(/\n\s*\n/g, '\n').trim();
+}
+
+function highlightSql(sql) {
+  const kwRe = /\b(SELECT|FROM|WHERE|AND|OR|NOT|IN|IS|NULL|AS|ON|JOIN|LEFT|RIGHT|INNER|OUTER|FULL|CROSS|GROUP BY|ORDER BY|HAVING|UNION ALL|UNION|ALL|DISTINCT|BETWEEN|LIKE|EXISTS|CASE|WHEN|THEN|ELSE|END|INSERT|UPDATE|DELETE|SET|INTO|VALUES|CREATE|DROP|ALTER|TABLE|INDEX|VIEW|WITH|ROWNUM|RNUM|DECODE|SUBSTR|TO_CHAR|TO_DATE|SYSDATE|UPPER|LOWER|TRIM|NVL|COALESCE|COUNT|SUM|AVG|MIN|MAX|CONCAT)\b/gi;
+  const strings = /'([^']|'')*'/g;
+  const numbers = /\b(\d+(\.\d+)?)\b/g;
+  const comments = /--.*/g;
+
+  let h = sql.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  h = h.replace(comments, m => `<span class="sql-comment">${m}</span>`);
+  h = h.replace(strings, m => `<span class="sql-string">${m}</span>`);
+  h = h.replace(numbers, m => `<span class="sql-number">${m}</span>`);
+  h = h.replace(kwRe, m => `<span class="sql-keyword">${m.toUpperCase()}</span>`);
+  return h;
+}
+
 function formatSql(capture) {
-  if (!capture || capture.error) return capture?.error || 'SQL not captured';
-  const params = (capture.params || []).map((p, i) => `  [${i + 1}] ${p}`).join('\n');
-  return `-- Paginated Query\n${capture.paginated_query || ''}\n\n-- Count Query\n${capture.count_query || ''}\n\n-- Params\n${params || '  (none)'}`;
+  if (!capture || capture.error) return { text: capture?.error || 'SQL not captured', html: false };
+  const params = capture.params || [];
+  const bound = bindParams(capture.paginated_query || '', params);
+  return { text: formatSqlText(bound), html: true };
 }
 
 async function testApiWithSql(apiUrl, sqlUrl, btnElement, panelElement, statusBadge, apiBody, sqlBody) {
@@ -493,7 +596,12 @@ async function testApiWithSql(apiUrl, sqlUrl, btnElement, panelElement, statusBa
   if (sqlResult.status === 'fulfilled') {
     try {
       const capture = JSON.parse(sqlResult.value.text);
-      sqlBody.textContent = formatSql(capture);
+      const result = formatSql(capture);
+      if (result.html) {
+        sqlBody.innerHTML = highlightSql(result.text);
+      } else {
+        sqlBody.textContent = result.text;
+      }
     } catch {
       sqlBody.textContent = sqlResult.value.text;
     }

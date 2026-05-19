@@ -1,8 +1,0 @@
-2026-05-15 06:47:38 | INFO     | api.access | 172.21.0.1 "GET /api/airport/lease-contract" 422 7.9ms
-2026-05-15 06:47:38 | INFO     | api.access | 172.21.0.1 "GET /api/admin/sql" 404 1.2ms
-2026-05-15 16:01:13 | INFO     | api.access | 172.21.0.1 "GET /api/airport/lease-contract" 422 2.7ms
-2026-05-15 16:01:13 | INFO     | api.access | 172.21.0.1 "GET /api/admin/sql" 404 0.8ms
-2026-05-15 16:01:26 | INFO     | api.access | 172.21.0.1 "GET /api/airport/lease-contract" 422 0.7ms
-2026-05-15 16:01:26 | INFO     | api.access | 172.21.0.1 "GET /api/admin/sql" 404 0.3ms
-2026-05-15 16:03:09 | INFO     | api.access | 172.21.0.1 "GET /api/airport/lease-contract" 200 146.2ms
-2026-05-15 16:06:42 | INFO     | api.access | 172.21.0.1 "GET /api/airport/lease-contract" 200 19.2ms

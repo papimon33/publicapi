@@ -29,4 +29,13 @@ AND INTERNATIONAL_TIME != 'null'
 AND FST IN ('11', '13', '14', '15') 
 AND INTERNATIONAL_AIRPORT_DOME NOT IN 'ICN' and INTERNATIONAL_AIRPORT_INTE NOT in 'ICN')
 WHERE 1=1
-ORDER BY fgenTime ASC 
+-- [동적 조건] fid         → AND FID = ?
+--             fgenTime    → AND fgenTime >= ?
+--             flightId    → AND flightId = UPPER(?)
+--             depCityCode → AND depCityCode = UPPER(?)
+--             depCity     → AND depCity LIKE '%'||?||'%'
+--             arrvCityCode→ AND arrvCityCode = UPPER(?)
+--             arrvCity    → AND arrvCity LIKE '%'||?||'%'
+--             fgenType    → AND fgenType = UPPER(?)
+--             schAirLine  → AND airlinecode = UPPER(?)
+ORDER BY fgenTime ASC

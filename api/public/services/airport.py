@@ -1,9 +1,23 @@
 import os
+import re
 import aioodbc
 from typing import List, Dict, Any, Tuple
 from api.public.models.airport import *
 from core.models import PaginationResponse, PaginationParams
 from core.utils import build_conditions, get_sql_query, wrap_pagenation_sql, execute_query
+
+_AIRPORT_CODE_MAP = {
+    'GMP': 'A1101', 'PUS': 'A1102', 'CJU': 'A1103', 'TAE': 'A1104',
+    'KWJ': 'A1108', 'RSU': 'A1109', 'USN': 'A1105', 'KUV': 'A1113',
+    'WJU': 'A1114', 'CJJ': 'A1106', 'YNY': 'A1111', 'KPO': 'A1110',
+    'HIN': 'A1112', 'MWX': 'A1107',
+}
+
+def _insert_before_order(query: str, cond: str) -> str:
+    m = re.search(r'\bORDER\s+BY\b', query, re.IGNORECASE)
+    if m:
+        return query[:m.start()] + cond + ' ' + query[m.start():]
+    return query + cond
 
 
 def _build_body(data, page, total_count):
@@ -17,7 +31,23 @@ def _build_body(data, page, total_count):
 
 async def fetch_lease_contract(request: LeaseContractRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[LeaseContractResponse]:
     query = get_sql_query('get_lease_contract')
-    query, params = build_conditions(query, request, [])
+    params = []
+
+    # schAirportCode: 사용자 입력값(GMP 등)을 내부 APCD 코드로 변환
+    if request.schAirportCode:
+        apcd = _AIRPORT_CODE_MAP.get(str(request.schAirportCode).upper())
+        if apcd:
+            query = _insert_before_order(query, "AND A.APCD = ?")
+            params.append(apcd)
+
+    # contractStatus: 값에 따라 SQL 조건 자체가 다름 (파라미터 없음)
+    if request.contactStatus:
+        status = str(request.contactStatus).upper()
+        if status == 'ON':
+            query = _insert_before_order(query, "AND TO_CHAR(A.LSE_CTR_ED_DT, 'YYYY-MM-DD') >= TO_CHAR(SYSDATE, 'YYYY-MM-DD')")
+        elif status == 'EXP':
+            query = _insert_before_order(query, "AND TO_CHAR(SYSDATE, 'YYYY-MM-DD') > TO_CHAR(A.LSE_CTR_ED_DT, 'YYYY-MM-DD')")
+
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
     return PaginationResponse[LeaseContractResponse](body=_build_body([LeaseContractResponse(**row) for row in result], page, total_count))

@@ -42,6 +42,16 @@ TV_BIZ_AT,
 ELEC_BIZ_AT
 FROM SI_NOISE_MASTER T1
 WHERE 1=1
+    -- [동적 조건] city1   → AND T1.CTP_NM LIKE '%'||?||'%'
+    --             city2   → AND T1.SIG_NM LIKE '%'||?||'%'
+    --             dong    → AND T1.HEMD_NM LIKE '%'||?||'%'
+    --             li      → AND T1.LI_NM LIKE '%'||?||'%'
+    --             jibun   → AND TO_CHAR(DECODE(...LNBR_MNNM...)) LIKE '%'||?||'%'
+    --             street  → AND T1.RN LIKE '%'||?||'%'
+    --             build   → AND T1.BULD_NM LIKE '%'||?||'%'
+    --             buildno → AND TO_CHAR(DECODE(...BULD_MNNM...)) LIKE '%'||?||'%'
+    --             hosu    → AND T1.BULD_HOSU LIKE '%'||?||'%'
+    -- (base_param: city1, city2, dong 가 SELECT 내 CASE WHEN ? IS NULL 에 바인딩)
     
     
     

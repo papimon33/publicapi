@@ -90,7 +90,10 @@ async def response_format_middleware(request: Request, call_next):
     if request_type in ("sql", "SQL"):
         capture: dict = {}
         _sql_capture.set(capture)
-        await call_next(request)  # 응답 바디는 버림; SQL만 캡처
+        response = await call_next(request)
+        # 응답 바디를 반드시 소비해야 커넥션이 정상 반환됨
+        async for _ in response.body_iterator:
+            pass
         return Response(
             content=_json.dumps(capture or {"error": "SQL not captured"}, ensure_ascii=False),
             media_type="application/json",

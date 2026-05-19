@@ -23,4 +23,9 @@ FROM
     AIRPORT_FIDS_SCHEDULE T1 LEFT JOIN AIRPORT_AIRLINE_CODE T2 ON T1.ICAO = T2.AIRLINE_CODE3 AND T1.IATA = T2.AIRLINE_CODE2
     LEFT JOIN FIDS_STATUS T3 ON T1.RMK = T3.RMK_CODE 
 WHERE T1.ACT_C_DATE = TO_CHAR(sysdate, 'yyyymmdd') AND T1.FST IN ('11', '13', '15') AND T1.PPC IN ('00', '08') AND (T1.DEL != 'Y' OR (T1.DEL='Y' AND T1.RMK='SNL'))
+-- [동적 조건] schAirCode            → AND T1.AIRPORT = ?
+--             (schStTime, schEdTime) → AND T1.STD BETWEEN ? AND ?
+--             schLineType            → AND T1.LINE = ?
+--             schIOType              → AND T1.IO = ?
+--             schFln                 → AND T2.AIRLINE_CODE2||T1.Fln LIKE UPPER('%'||?||'%')
 ORDER BY T1.STD ASC

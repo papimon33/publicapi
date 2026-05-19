@@ -5,4 +5,4 @@ SELECT
     FRST_REG_TS,
     REG_DATE
 FROM AIRPORT_LOW_VISIBLITY
-WHERE IDX = ?
+WHERE IDX = ? -- base_param: idx

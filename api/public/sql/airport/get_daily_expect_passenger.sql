@@ -15,6 +15,11 @@ SELECT
     END AS CONGEST_YN
 FROM AIRPORT_DAILY_EXPECT
 WHERE 1 = 1
+    -- [동적 조건] schDate    → AND SDT = ?
+    --             schAirport → AND ARP = ?
+    --             schTof     → AND TOF = ?
+    --             schHH      → AND HH = ?
+    --             schAOD     → AND AOD = ?
        
        
   

@@ -32,4 +32,8 @@ FROM (
  WHERE 1 = 1
    AND LINES.ARP = CPAIR.C_ORG
    AND LINES.ODP = CPAIR.C_DST
+-- [동적 조건] (schEdDate, schStDate) → AND TO_CHAR(DOMESTIC_STDATE,'yyyyMMdd') <= ? AND TO_CHAR(DOMESTIC_EDDATE,'yyyyMMdd') >= ?
+--             (schEdDate, schStDate) → AND TO_CHAR(INTERNATIONAL_STDATE,'yyyyMMdd') <= ? AND TO_CHAR(INTERNATIONAL_EDDATE,'yyyyMMdd') >= ? (x2)
+--             schAirport             → AND LINES.ARP = ?
+--             schLineType            → AND LINES.TOF = ?
  ORDER BY ARP, KM DESC

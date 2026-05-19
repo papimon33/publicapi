@@ -6,5 +6,7 @@ FROM AIRSTATISTICS.AIRPORT_T
 WHERE AIRPORT_T.A_IO = 'O'
     AND A_AIRPORT = 'CJU'
     AND A_USE = '0'
+    -- [동적 조건] flightDate → AND A_YYYYMM = ?
+    --             line       → AND A_LINE = ?
 GROUP BY A_AIRPORT, A_YYYYMM, A_LINE
 ORDER BY A_YYYYMM DESC

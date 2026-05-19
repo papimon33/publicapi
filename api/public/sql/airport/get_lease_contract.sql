@@ -29,4 +29,7 @@ SELECT
     END                                     AS CONTRACT_STATUS
 FROM CMS_LEASE_CONTRACT_STATUS A INNER JOIN CMS_CMN_CODE B ON A.APCD = B.CMN_CODE
 WHERE 1=1
+    -- [동적 조건] schAirportCode → AND A.APCD = ? (GMP→A1101, PUS→A1102, CJU→A1103 등 코드 변환)
+    --             contactStatus  → ON  : AND TO_CHAR(A.LSE_CTR_ED_DT,'YYYY-MM-DD') >= TO_CHAR(SYSDATE,'YYYY-MM-DD')
+    --                            → EXP : AND TO_CHAR(SYSDATE,'YYYY-MM-DD') > TO_CHAR(A.LSE_CTR_ED_DT,'YYYY-MM-DD')
 ORDER BY A.APCD ASC

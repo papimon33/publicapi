@@ -82,5 +82,16 @@ SELECT
 FROM 
     FS
     LEFT JOIN NEXT_DAY_INFO ND ON FS.FLIGHTID = ND.ORIG_FLIGHTID AND FS.SEARCHDAY = ND.ORIG_SEARCHDAY
-WHERE 1=1 
-ORDER BY SEARCHDAY, SCHEDULEDATETIME ASC  
+WHERE 1=1
+-- [동적 조건] searchday       → AND searchday = ?
+--             from_time       → AND SUBSTR(SCHEDULEDATETIME,9,4) >= ?
+--             to_time         → AND SUBSTR(SCHEDULEDATETIME,9,4) <= ?
+--             airport_code    → AND DEP_AIRPORT_CODE = UPPER(?)
+--             airport         → AND DEP_AIRPORT LIKE '%'||?||'%'
+--             arr_airport_code→ AND ARR_AIRPORT_CODE = UPPER(?)
+--             arr_airport     → AND ARR_AIRPORT LIKE '%'||?||'%'
+--             fgenTime        → AND fgenTime >= ?
+--             f_id            → AND FID = ?
+--             flight_id       → AND FLIGHTID = UPPER(?)
+--             line            → AND (CASE WHEN LINE='국내' THEN 'D' WHEN LINE='국제' THEN 'I' ELSE LINE END = UPPER(?))
+ORDER BY SEARCHDAY, SCHEDULEDATETIME ASC

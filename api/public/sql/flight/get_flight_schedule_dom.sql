@@ -24,5 +24,11 @@ SELECT
 FROM 
     AIRPORT_SCHEDULE_DOME A, 
     AIRPORT_AIRLINE_CODE B
-WHERE B.AIRLINE_CODE2=SUBSTR(A.DOMESTIC_NUM,0,2) and FST != '12' 
-ORDER BY A.DOMESTIC_START_TIME ASC 
+WHERE B.AIRLINE_CODE2=SUBSTR(A.DOMESTIC_NUM,0,2) and FST != '12'
+-- [동적 조건] schDate         → AND TO_CHAR(DOMESTIC_STDATE,'yyyymmdd') <= ?
+--             schDate         → AND TO_CHAR(DOMESTIC_EDDATE,'yyyymmdd') >= ?
+--             schDeptCityCode → AND A.DOMESTIC_START_CITY = ?
+--             schArrvCityCode → AND A.DOMESTIC_ARRIVAL_CITY = ?
+--             schAirLine      → AND SUBSTR(DOMESTIC_NUM,0,2) = ?
+--             schFlightNum    → AND DOMESTIC_NUM LIKE '%'||?||'%'
+ORDER BY A.DOMESTIC_START_TIME ASC

@@ -66,4 +66,13 @@ AND FST IN ('11', '13', '14', '15')
 AND to_char(A.DOMESTIC_STDATE, 'YYYYMMDD') <= SYSDATE
 AND to_char(A.DOMESTIC_EDDATE, 'YYYYMMDD') >= SYSDATE)
 WHERE 1=1
+-- [동적 조건] fid         → AND FID = ?
+--             fgenTime    → AND fgenTime >= ?
+--             flightId    → AND flightId = UPPER(?)
+--             depCityCode → AND depCityCode = UPPER(?)
+--             depCity     → AND depCity LIKE '%'||?||'%'
+--             arrvCityCode→ AND arrvCityCode = UPPER(?)
+--             arrvCity    → AND arrvCity LIKE '%'||?||'%'
+--             fgenType    → AND fgenType = UPPER(?)
+--             schAirLine  → AND airlinecode = UPPER(?)
 ORDER BY fgenTime desc

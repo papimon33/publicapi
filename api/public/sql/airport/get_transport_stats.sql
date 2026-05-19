@@ -50,4 +50,8 @@ FROM
     GROUP BY A_AIRPORT
 )AP, ORDER_T OD
 WHERE AP.A_AIRPORT = OD.NAME(+)
+-- [동적 조건] routeBe       → AND A_LINE = ?
+--             pasngrCargoBe → AND A_USE = ?
+--             nvgBe         → AND a_REGULAR = ?
+-- (base_param: pasngrBe, cargoBe, startDePd, endDePd, airPort 가 서브쿼리 내 ? 에 바인딩)
 ORDER BY OD.ORDER_N

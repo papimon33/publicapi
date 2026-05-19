@@ -25,7 +25,9 @@ FROM
             A.TOT_EM_TCO2EQ
         FROM NGHG_KAC.TB_GHG_EM_STAT A 
         WHERE  1=1
-        ) A 
+            -- [동적 조건] sdate → AND A.BAS_YM >= ?
+            --             edate → AND A.BAS_YM <= ?
+        ) A
     GROUP BY 
         A.BAS_YM,
         A.ACT_CD_ID 

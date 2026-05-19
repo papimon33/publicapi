@@ -38,6 +38,13 @@ FROM
     AIRPORT_FIDS_SCHEDULE T1 LEFT JOIN AIRPORT_AIRLINE_CODE T2 ON T1.ICAO = T2.AIRLINE_CODE3 AND T1.IATA = T2.AIRLINE_CODE2
     LEFT JOIN FIDS_STATUS T3 ON T1.RMK = T3.RMK_CODE 
  WHERE T1.FST IN ('11', '13', '15') AND T1.PPC IN ('00', '08') AND T1.DEL != 'Y' AND (T1.AIRPORT = 'GMP' OR T1.CITY = 'GMP')
+    -- [동적 조건] FLIGHT_DATE → AND TO_CHAR(T1.ACT_DATE,'yyyymmdd') = ?
+    --             AIRPORT     → AND T1.AIRPORT = ?
+    --             STD         → AND T1.STD = ?
+    --             ETD         → AND T1.ETD = ?
+    --             LINE        → AND T1.LINE = ?
+    --             IO          → AND T1.IO = ?
+    --             AIR_FLN     → AND T2.AIRLINE_CODE2||T1.Fln LIKE UPPER('%'||?||'%')
     
     
        
