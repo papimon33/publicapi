@@ -7,7 +7,7 @@ from fastapi import FastAPI, Depends, Request, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
-from core.utils import json_to_xml, transform_for_json
+from core.utils import json_to_xml, transform_for_json, _sql_capture
 
 from core.logging_config import setup_logging
 from db.connection import create_pool, close_pool, get_connection, db_pool
@@ -57,7 +57,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["GET"],       # 조회 전용 API이므로 GET만 허용
+    allow_methods=["GET"],     
     allow_headers=["*"],
 )
 
@@ -80,9 +80,24 @@ async def access_log_middleware(request: Request, call_next):
     return response
 
 
-# ── XML/JSON 변환 미들웨어 ────────────────────────────────────────────
+# ── XML/JSON/SQL 변환 미들웨어 ───────────────────────────────────────
 @app.middleware("http")
 async def response_format_middleware(request: Request, call_next):
+    import json as _json
+    request_type = request.query_params.get("type", "json")
+
+    # type=sql: DB 실행 없이 생성된 SQL을 반환
+    if request_type in ("sql", "SQL"):
+        capture: dict = {}
+        _sql_capture.set(capture)
+        await call_next(request)  # 응답 바디는 버림; SQL만 캡처
+        return Response(
+            content=_json.dumps(capture or {"error": "SQL not captured"}, ensure_ascii=False),
+            media_type="application/json",
+            status_code=200,
+            headers={"Access-Control-Allow-Origin": "*"},
+        )
+
     response = await call_next(request)
     if "application/json" not in response.headers.get("content-type", ""):
         return response
@@ -90,11 +105,9 @@ async def response_format_middleware(request: Request, call_next):
     body = b""
     async for chunk in response.body_iterator:
         body += chunk
-    import json as _json
     data = _json.loads(body)
 
     cors_origin = response.headers.get("Access-Control-Allow-Origin", "*")
-    request_type = request.query_params.get("type", "json")
 
     if request_type in ("xml", "XML"):
         return Response(

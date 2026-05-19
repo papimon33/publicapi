@@ -3,8 +3,13 @@ import re
 import json
 import asyncio
 import inspect
+from contextvars import ContextVar
 from typing import List, Tuple, Any
 from fastapi import HTTPException
+
+# type=sql 요청 시 DB 실행을 건너뛰고 SQL을 캡처하기 위한 컨텍스트 변수.
+# ContextVar에 mutable dict를 저장해 task 간 참조를 공유한다.
+_sql_capture: ContextVar[dict | None] = ContextVar('_sql_capture', default=None)
 
 
 def _xml_escape(value) -> str:
@@ -78,28 +83,29 @@ def get_sql_query(method_name: str) -> str:
     with open(sql_path, 'r', encoding='utf-8') as f:
         return f.read()
 
-def build_conditions(request: Any, mapping: List[tuple]) -> Tuple[str, list]:
-    cond_query = ""
+def build_conditions(query: str, request: Any, mapping: List[tuple]) -> Tuple[str, list]:
+    cond_sql = ""
     params = []
     for item in mapping:
         attrs = item[0] if isinstance(item[0], tuple) else (item[0],)
         sql_fragment = item[1]
-        
+
         if not attrs:
             continue
-            
-        all_present = True
-        for attr in attrs:
-            if getattr(request, attr, None) is None:
-                all_present = False
-                break
-                
+
+        all_present = all(getattr(request, attr, None) is not None for attr in attrs)
         if all_present:
-            cond_query += " " + sql_fragment
+            cond_sql += " " + sql_fragment
             for attr in attrs:
-                params.append(getattr(request, attr, None))
-                
-    return cond_query, params
+                params.append(getattr(request, attr))
+
+    order_match = re.search(r'\bORDER\s+BY\b', query, re.IGNORECASE)
+    if order_match and cond_sql:
+        query = query[:order_match.start()] + cond_sql + " " + query[order_match.start():]
+    else:
+        query += cond_sql
+
+    return query, params
 
 def wrap_pagenation_sql(original_sql: str, request: Any) -> Tuple[str, str]:
     if hasattr(request, 'pageNo') and hasattr(request, 'numOfRows'):
@@ -135,7 +141,17 @@ async def execute_query(conn, count_query: str, paginated_query: str, params: li
     공용 DB 쿼리 실행 헬퍼.
     count 쿼리와 paginated 쿼리를 순서대로 실행하고 (total_count, result) 를 반환합니다.
     각 execute() 호출에 DB_QUERY_TIMEOUT 을 적용합니다.
+    _sql_capture 가 설정된 경우(type=sql 요청) DB를 실행하지 않고 SQL만 캡처하여 반환합니다.
     """
+    capture = _sql_capture.get(None)
+    if capture is not None:
+        capture.update({
+            'count_query': count_query,
+            'paginated_query': paginated_query.strip(),
+            'params': [str(p) if p is not None else 'NULL' for p in params],
+        })
+        return 0, []
+
     from db.connection import DB_QUERY_TIMEOUT  # 순환 import 방지를 위해 지연 import
 
     async with conn.cursor() as count_cursor:

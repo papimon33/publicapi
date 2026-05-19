@@ -23,14 +23,12 @@ class DatabasePool:
             f"UID={settings.db_user};"
             f"PWD={settings.db_password};"
         )
-        # 로그용 마스킹 DSN (비밀번호 노출 방지)
         safe_dsn = dsn.replace(settings.db_password, "***")
         try:
             self.pool = await aioodbc.create_pool(
                 dsn=dsn,
                 minsize=1,
                 maxsize=20,
-                # pool_recycle은 aioodbc에서 지원되지 않으므로 제거
                 timeout=DB_ACQUIRE_TIMEOUT,  # 풀 내부 커넥션 획득 타임아웃
             )
             logger.info("ODBC connection pool created successfully.")

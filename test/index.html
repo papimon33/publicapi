@@ -177,7 +177,7 @@
     border-top: 1px solid #374151;
   }
   .col-title .col-label-new  { color: #34d399; }
-  .col-title .col-label-old  { color: #fbbf24; }
+  .col-title .col-label-sql  { color: #60a5fa; }
   .response-body {
     padding: 20px;
     overflow-y: auto;
@@ -328,10 +328,10 @@ function renderTab(route) {
     paramBtn.textContent = '요청 파라미터';
 
     // XML / JSON 토글
-    let selectedType = 'xml';
+    let selectedType = 'json';
     const typeToggle = document.createElement('div');
     typeToggle.className = 'type-toggle';
-    ['xml', 'json'].forEach(t => {
+    ['json', 'xml'].forEach(t => {
       const tb = document.createElement('button');
       tb.textContent = t.toUpperCase();
       if (t === selectedType) tb.classList.add('active');
@@ -391,52 +391,33 @@ function renderTab(route) {
     const responsePanel = document.createElement('div');
     responsePanel.className = 'response-panel';
 
-    // Header (신규 API URL + 상태)
+    // Header (URL + 상태)
     const resHeader = document.createElement('div');
     resHeader.className = 'response-header';
     resHeader.innerHTML = `<span style="font-family:monospace;font-size:0.85rem;" class="panel-url">${fullPath}</span><span class="status-badge"></span>`;
     responsePanel.appendChild(resHeader);
 
-    // 기존 API 매핑 확인
-    const legacyPath = (typeof API_MAPPING !== 'undefined') && API_MAPPING.endpoints && API_MAPPING.endpoints[fullPath];
-    const hasLegacy = !!(legacyPath && API_MAPPING.legacyBaseUrl);
+    // Split view: 왼쪽 = API 응답, 오른쪽 = SQL
+    const splitView = document.createElement('div');
+    splitView.className = 'response-split';
 
-    let resBody, legacyBody, legacyStatusBadge;
+    const col1 = document.createElement('div');
+    col1.className = 'response-col';
+    col1.innerHTML = `<div class="col-title"><span class="col-label-new">● Response</span></div>`;
+    const resBody = document.createElement('pre');
+    resBody.className = 'response-body';
+    col1.appendChild(resBody);
 
-    if (hasLegacy) {
-      // split view
-      const splitView = document.createElement('div');
-      splitView.className = 'response-split';
+    const col2 = document.createElement('div');
+    col2.className = 'response-col';
+    col2.innerHTML = `<div class="col-title"><span class="col-label-sql">● SQL</span></div>`;
+    const sqlBody = document.createElement('pre');
+    sqlBody.className = 'response-body';
+    col2.appendChild(sqlBody);
 
-      const col1 = document.createElement('div');
-      col1.className = 'response-col';
-      col1.innerHTML = `<div class="col-title"><span class="col-label-new">● 신규</span> &nbsp;${API_MAPPING.newBaseUrl}${fullPath}</div>`;
-      resBody = document.createElement('pre');
-      resBody.className = 'response-body';
-      col1.appendChild(resBody);
-
-      const col2 = document.createElement('div');
-      col2.className = 'response-col';
-      const legacyEndpointPath = typeof legacyPath === 'object' ? legacyPath.legacyPath : legacyPath;
-      col2.innerHTML = `<div class="col-title"><span class="col-label-old">● 기존</span> &nbsp;${API_MAPPING.legacyBaseUrl}${legacyEndpointPath}</div>`;
-      legacyBody = document.createElement('pre');
-      legacyBody.className = 'response-body legacy';
-      col2.appendChild(legacyBody);
-
-      // 기존 API 상태 뱃지
-      const legacyHeader = document.createElement('div');
-      legacyHeader.style.cssText = 'display:none;';
-      legacyStatusBadge = document.createElement('span');
-      legacyHeader.appendChild(legacyStatusBadge);
-
-      splitView.appendChild(col1);
-      splitView.appendChild(col2);
-      responsePanel.appendChild(splitView);
-    } else {
-      resBody = document.createElement('pre');
-      resBody.className = 'response-body';
-      responsePanel.appendChild(resBody);
-    }
+    splitView.appendChild(col1);
+    splitView.appendChild(col2);
+    responsePanel.appendChild(splitView);
 
     const statusBadge = resHeader.querySelector('.status-badge');
     const panelUrlText = resHeader.querySelector('.panel-url');
@@ -448,25 +429,17 @@ function renderTab(route) {
       entries.push(['type', selectedType]);
       const qs = new URLSearchParams(entries).toString();
       const finalUrl = `${fullPath}?${qs}`;
-      panelUrlText.textContent = finalUrl;
 
-      if (hasLegacy) {
-        // paramMap 지원: 파라미터 이름이 기존 API와 다를 경우
-        const mapping = API_MAPPING.endpoints[fullPath];
-        const legacyEndpointPath = typeof mapping === 'object' ? mapping.legacyPath : mapping;
-        const paramMap = (typeof mapping === 'object' && mapping.paramMap) ? mapping.paramMap : {};
-        let legacyQs = qs;
-        if (Object.keys(paramMap).length > 0) {
-          const newParams = new URLSearchParams(qs);
-          const legacyParams = new URLSearchParams();
-          newParams.forEach((v, k) => legacyParams.set(paramMap[k] || k, v));
-          legacyQs = legacyParams.toString();
-        }
-        const legacyUrl = API_MAPPING.legacyBaseUrl + legacyEndpointPath + (legacyQs ? '?' + legacyQs : '');
-        testApiCompare(finalUrl, legacyUrl, runBtn, responsePanel, statusBadge, resBody, legacyBody);
-      } else {
-        testApi(finalUrl, runBtn, responsePanel, statusBadge, resBody);
-      }
+      // SQL용: type을 sql로 교체
+      const sqlEntries = Object.entries(inputElements)
+        .filter(([, input]) => input.value.trim() !== '')
+        .map(([key, input]) => [key, input.value.trim()]);
+      sqlEntries.push(['type', 'sql']);
+      const sqlQs = new URLSearchParams(sqlEntries).toString();
+      const sqlUrl = `${fullPath}?${sqlQs}`;
+
+      panelUrlText.textContent = finalUrl;
+      testApiWithSql(finalUrl, sqlUrl, runBtn, responsePanel, statusBadge, resBody, sqlBody);
     };
 
     wrapper.appendChild(card);
@@ -484,63 +457,48 @@ async function fetchJson(url) {
   return { status: res.status, statusText: res.statusText, ok: res.ok, text };
 }
 
-async function testApi(url, btnElement, panelElement, statusBadge, bodyElement) {
-  const originalText = btnElement.textContent;
-  btnElement.innerHTML = '<div class="spinner"></div>';
-  btnElement.disabled = true;
-  panelElement.style.display = 'flex';
-  statusBadge.textContent = 'Loading...';
-  statusBadge.className = 'status-badge';
-  bodyElement.textContent = 'Fetching data...';
-  try {
-    const r = await fetchJson((API_MAPPING.newBaseUrl || 'http://localhost:8000') + url);
-    statusBadge.textContent = `${r.status} ${r.statusText}`;
-    statusBadge.className = 'status-badge ' + (r.ok ? 'status-success' : 'status-error');
-    bodyElement.textContent = r.text;
-  } catch (e) {
-    statusBadge.textContent = 'Error';
-    statusBadge.className = 'status-badge status-error';
-    bodyElement.textContent = `Fetch failed: ${e.message}\n\nMake sure the API server is running on localhost:8000.`;
-  } finally {
-    btnElement.textContent = originalText;
-    btnElement.disabled = false;
-  }
+function formatSql(capture) {
+  if (!capture || capture.error) return capture?.error || 'SQL not captured';
+  const params = (capture.params || []).map((p, i) => `  [${i + 1}] ${p}`).join('\n');
+  return `-- Paginated Query\n${capture.paginated_query || ''}\n\n-- Count Query\n${capture.count_query || ''}\n\n-- Params\n${params || '  (none)'}`;
 }
 
-async function testApiCompare(newUrl, legacyUrl, btnElement, panelElement, statusBadge, newBody, legacyBody) {
+async function testApiWithSql(apiUrl, sqlUrl, btnElement, panelElement, statusBadge, apiBody, sqlBody) {
   const originalText = btnElement.textContent;
   btnElement.innerHTML = '<div class="spinner"></div>';
   btnElement.disabled = true;
   panelElement.style.display = 'flex';
   statusBadge.textContent = 'Loading...';
   statusBadge.className = 'status-badge';
-  newBody.textContent = 'Fetching...';
-  legacyBody.textContent = 'Fetching...';
+  apiBody.textContent = 'Fetching...';
+  sqlBody.textContent = 'Fetching...';
 
-  // 신규 + 기존 API 병렬 호출
-  const [newResult, legacyResult] = await Promise.allSettled([
-    fetchJson((API_MAPPING.newBaseUrl || 'http://localhost:8000') + newUrl),
-    fetchJson(legacyUrl)
+  const base = (typeof API_MAPPING !== 'undefined' && API_MAPPING.newBaseUrl) || 'http://localhost:8000';
+  const [apiResult, sqlResult] = await Promise.allSettled([
+    fetchJson(base + apiUrl),
+    fetchJson(base + sqlUrl),
   ]);
 
-  // 신규 API
-  if (newResult.status === 'fulfilled') {
-    const r = newResult.value;
-    statusBadge.textContent = `신규 ${r.status} ${r.statusText}`;
+  if (apiResult.status === 'fulfilled') {
+    const r = apiResult.value;
+    statusBadge.textContent = `${r.status} ${r.statusText}`;
     statusBadge.className = 'status-badge ' + (r.ok ? 'status-success' : 'status-error');
-    newBody.textContent = r.text;
+    apiBody.textContent = r.text;
   } else {
-    statusBadge.textContent = '신규 Error';
+    statusBadge.textContent = 'Error';
     statusBadge.className = 'status-badge status-error';
-    newBody.textContent = `Fetch failed: ${newResult.reason?.message}`;
+    apiBody.textContent = `Fetch failed: ${apiResult.reason?.message}`;
   }
 
-  // 기존 API
-  if (legacyResult.status === 'fulfilled') {
-    const r = legacyResult.value;
-    legacyBody.textContent = r.text;
+  if (sqlResult.status === 'fulfilled') {
+    try {
+      const capture = JSON.parse(sqlResult.value.text);
+      sqlBody.textContent = formatSql(capture);
+    } catch {
+      sqlBody.textContent = sqlResult.value.text;
+    }
   } else {
-    legacyBody.textContent = `Fetch failed: ${legacyResult.reason?.message}\n\n기존 API 서버 주소가 올바른지 확인하세요.\n(api_mapping.js → legacyBaseUrl)`;
+    sqlBody.textContent = `Fetch failed: ${sqlResult.reason?.message}`;
   }
 
   btnElement.textContent = originalText;

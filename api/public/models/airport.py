@@ -159,12 +159,13 @@ class CongestionV2Response(BaseModel):
     pass
 
 class MonthlyInoutCjuRequest(PublicRequest):
-    # 모델에 대응하는 SQL을 찾지 못함
-    pass
+    flightDate: Optional[Any] = None
+    line: Optional[Any] = None
 
 class MonthlyInoutCjuResponse(BaseModel):
-    # 모델에 대응하는 SQL을 찾지 못함
-    pass
+    YM: Optional[Any] = None
+    LINE: Optional[Any] = None
+    JEJUOUT: Optional[Any] = None
 
 class WaitTimeV1Request(PublicRequest):
     pass
