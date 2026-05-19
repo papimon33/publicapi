@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PublicAPI Dashboard</title>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --bg-color: #f9fafb;
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --success: #10b981;
+    --error: #ef4444;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  aside {
+    width: 250px;
+    background-color: var(--card-bg);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .tab:hover { background-color: #f3f4f6; color: var(--text-main); }
+  .tab.active { background-color: #eef2ff; color: var(--primary); border-left-color: var(--primary); }
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    overflow-y: auto;
+  }
+  .route-title { font-size: 2rem; margin: 0 0 20px 0; text-transform: capitalize; }
+  .endpoint-list { display: flex; flex-direction: column; gap: 12px; }
+  .endpoint-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .endpoint-card:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.05); transform: translateY(-1px); }
+  .endpoint-info { display: flex; align-items: center; gap: 12px; }
+  .method {
+    background: #e0e7ff;
+    color: var(--primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .path { font-family: monospace; font-size: 1rem; color: var(--text-main); }
+  .btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: var(--primary-hover); }
+  .btn-gray { background: #4b5563; }
+  .btn-gray:hover { background: #374151; }
+  .type-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .type-toggle button {
+    padding: 6px 12px;
+    border: none;
+    background: white;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .type-toggle button.active {
+    background: var(--primary);
+    color: white;
+  }
+  .type-toggle button:not(.active):hover { background: #f3f4f6; }
+  .param-input {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    outline: none;
+    width: 140px;
+    color: var(--text-main);
+  }
+  .param-input:focus { border-color: var(--primary); }
+  .params-panel {
+    display: none;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 16px;
+  }
+  .param-field { display: flex; flex-direction: column; font-size: 0.8rem; }
+  .param-label { color: #6b7280; margin-bottom: 4px; font-weight: 500; }
+  .response-panel {
+    margin-top: 8px;
+    background: #1f2937;
+    border-radius: 8px;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: 400px;
+    flex-shrink: 0;
+  }
+  .response-header {
+    background: #111827;
+    padding: 12px 20px;
+    color: #d1d5db;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 0.8rem; }
+  .status-success { background: rgba(16,185,129,0.2); color: #34d399; }
+  .status-error { background: rgba(239,68,68,0.2); color: #f87171; }
+  .response-split { display: flex; flex: 1; overflow: hidden; }
+  .response-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #374151;
+    overflow: hidden;
+  }
+  .response-col:last-child { border-right: none; }
+  .col-title {
+    background: #111827;
+    color: #9ca3af;
+    font-size: 0.8rem;
+    padding: 6px 20px;
+    font-weight: 600;
+    border-bottom: 1px solid #374151;
+    border-top: 1px solid #374151;
+  }
+  .col-title .col-label-new  { color: #34d399; }
+  .col-title .col-label-old  { color: #fbbf24; }
+  .response-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    margin: 0;
+    color: #e5e7eb;
+    font-family: monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .response-body.legacy { color: #fde68a; }
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="logo">PublicAPI Test</div>
+  <div id="tabs"></div>
+</aside>
+
+<main>
+  <h1 class="route-title" id="routeTitle">Select a Route</h1>
+  <div class="endpoint-list" id="endpointList"></div>
+</main>
+
+<script src="api_mapping.js"></script>
+<script>
+// 각 endpoint의 파라미터 정의 (models/ 기반)
+// PaginationRequest 공통 필드: numOfRows, pageNo
+const PAGINATION = [
+  { name: 'numOfRows', default: '10' },
+  { name: 'pageNo', default: '1' },
+];
+
+const apiParams = {
+  airport: {
+    '/lease-contract':           [...PAGINATION, 'schAirportCode', 'contactStatus'],
+    '/transport-stats':          [...PAGINATION, 'startDePd', 'endDePd', 'routeBe', 'nvgBe', 'pasngrCargoBe', 'pasngrBe', 'cargoBe', 'airPort'],
+    '/airport-code':             [...PAGINATION, 'cityCode', 'cityKor', 'cityEng', 'cityJpn', 'cityChn'],
+    '/bus':                      [...PAGINATION, 'schAirport'],
+    '/taxi-wait-cju':            [...PAGINATION],
+    '/daily-expect-passenger':   [...PAGINATION, 'schDate', 'schAirport', 'schTof', 'schHH', 'schAOD'],
+    '/low-visibility/idx':       [...PAGINATION, 'idx'],
+    '/epi-gh':                   [...PAGINATION, 'sdate', 'edate'],
+    '/low-visibility':           [...PAGINATION],
+    '/low-visibility/latest':    [...PAGINATION],
+    '/retail-contract':          [...PAGINATION],
+    '/congestion/v1':            [...PAGINATION],
+    '/congestion/v2':            [...PAGINATION],
+    '/monthly-inout/cju':        [...PAGINATION],
+    '/wait-time/v1':             [...PAGINATION],
+    '/wait-time/v2':             [...PAGINATION],
+  },
+  flight: {
+    '/routes-info':                    [...PAGINATION, 'schStDate', 'schEdDate', 'schLineType', 'schAirport'],
+    '/aircraft-type':                  [...PAGINATION, 'schStTime', 'schEdTime', 'schAirCode', 'schFID', 'schFln', 'Line', 'schAPLno', 'schAPM'],
+    '/flight-status':                  [...PAGINATION, 'schStTime', 'schEdTime', 'schLineType', 'schIOType', 'schAirCode', 'schFln', 'schRmk'],
+    '/flight-status/taxfree':          [...PAGINATION, 'schStTime', 'schEdTime', 'schLineType', 'schIOType', 'schAirCode', 'schFln', 'schRmk'],
+    '/flight-status/depart':           [...PAGINATION, 'searchday', 'from_time', 'to_time', 'airport_code', 'f_id', 'flight_id', 'line', 'airport', 'arr_airport_code', 'arr_airport', 'fgenTime'],
+    '/flight-status/arrival':          [...PAGINATION, 'searchday', 'from_time', 'to_time', 'airport_code', 'f_id', 'flight_id', 'line', 'airport', 'dep_airport_code', 'dep_airport', 'fgenTime'],
+    '/flight-schedule/taxfree-int':    [...PAGINATION, 'fid', 'flightId', 'depCityCode', 'depCity', 'arrvCityCode', 'arrvCity', 'schAirLine', 'fgenType', 'fgenTime'],
+    '/flight-schedule/taxfree-dom':    [...PAGINATION, 'fid', 'flightId', 'depCityCode', 'depCity', 'arrvCityCode', 'arrvCity', 'schAirLine', 'fgenType', 'fgenTime'],
+    '/apron/pus':                      [...PAGINATION, 'flightdate', 'std', 'etd', 'airport', 'airfln', 'line', 'io'],
+    '/apron/gmp':                      [...PAGINATION, 'FLIGHT_DATE', 'STD', 'ETD', 'LINE', 'IO', 'AIRPORT'],
+    '/apron/cju':                      [...PAGINATION, 'FLIGHT_DATE', 'STD', 'ETD', 'LINE', 'IO', 'AIRPORT', 'AIR_FLN'],
+    '/flight-schedule/dom':            [...PAGINATION, 'schDate', 'schDeptCityCode', 'schArrvCityCode', 'schAirLine', 'schFlightNum'],
+    '/flight-schedule/int':            [...PAGINATION],
+    '/flight-status/detail':           [...PAGINATION],
+  },
+  noise: {
+    '/noise-stats':           [...PAGINATION, 'airportCode', 'year'],
+    '/noise-affected-area':   [...PAGINATION, 'city1', 'city2', 'dong', 'li', 'jibun', 'street', 'build', 'buildno', 'hosu'],
+    '/noise-realtime/gmp':    [...PAGINATION],
+    '/noise-realtime/pus':    [...PAGINATION],
+  },
+  parking: {
+    '/valet-congestion':    [...PAGINATION],
+    '/parking-congestion':  [...PAGINATION, 'schAirportCode'],
+    '/parking-fee':         [...PAGINATION, 'schAirportCode'],
+    '/airport-parking':     [...PAGINATION, 'schAirportCode'],
+    '/parking-cell/gmp':    [...PAGINATION],
+  }
+};
+
+const tabsContainer = document.getElementById('tabs');
+const endpointList = document.getElementById('endpointList');
+const routeTitle = document.getElementById('routeTitle');
+let currentTab = 'airport';
+
+function getParams(route, endpoint) {
+  const raw = (apiParams[route] && apiParams[route][endpoint]) || [...PAGINATION];
+  return raw.map(p => typeof p === 'string' ? { name: p, default: '' } : p);
+}
+
+function init() {
+  Object.keys(apiParams).forEach(route => {
+    const tab = document.createElement('div');
+    tab.className = `tab ${route === currentTab ? 'active' : ''}`;
+    tab.textContent = route.charAt(0).toUpperCase() + route.slice(1);
+    tab.onclick = () => renderTab(route);
+    tabsContainer.appendChild(tab);
+  });
+  renderTab(currentTab);
+}
+
+function renderTab(route) {
+  currentTab = route;
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    if (t.textContent.toLowerCase() === route) t.classList.add('active');
+  });
+  routeTitle.textContent = route.charAt(0).toUpperCase() + route.slice(1) + ' APIs';
+  endpointList.innerHTML = '';
+
+  Object.keys(apiParams[route]).forEach(endpoint => {
+    const fullPath = `/public/${route}${endpoint}`;
+    const parameters = getParams(route, endpoint);
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display:flex;flex-direction:column;margin-bottom:12px;';
+
+    // Card
+    const card = document.createElement('div');
+    card.className = 'endpoint-card';
+
+    // Top bar
+    const topBar = document.createElement('div');
+    topBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;';
+
+    const info = document.createElement('div');
+    info.className = 'endpoint-info';
+    info.innerHTML = `<span class="method">GET</span><span class="path">${fullPath}</span>`;
+
+    const btnContainer = document.createElement('div');
+    btnContainer.style.cssText = 'display:flex;gap:8px;';
+
+    const paramBtn = document.createElement('button');
+    paramBtn.className = 'btn btn-gray';
+    paramBtn.textContent = '요청 파라미터';
+
+    // XML / JSON 토글
+    let selectedType = 'xml';
+    const typeToggle = document.createElement('div');
+    typeToggle.className = 'type-toggle';
+    ['xml', 'json'].forEach(t => {
+      const tb = document.createElement('button');
+      tb.textContent = t.toUpperCase();
+      if (t === selectedType) tb.classList.add('active');
+      tb.onclick = () => {
+        selectedType = t;
+        typeToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        tb.classList.add('active');
+      };
+      typeToggle.appendChild(tb);
+    });
+
+    const runBtn = document.createElement('button');
+    runBtn.className = 'btn';
+    runBtn.textContent = 'Run Test';
+
+    btnContainer.appendChild(paramBtn);
+    btnContainer.appendChild(typeToggle);
+    btnContainer.appendChild(runBtn);
+    topBar.appendChild(info);
+    topBar.appendChild(btnContainer);
+    card.appendChild(topBar);
+
+    // Params panel
+    const paramsDiv = document.createElement('div');
+    paramsDiv.className = 'params-panel';
+
+    const inputElements = {};
+    parameters.forEach(param => {
+      const field = document.createElement('div');
+      field.className = 'param-field';
+
+      const label = document.createElement('label');
+      label.className = 'param-label';
+      label.textContent = param.name;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = param.name;
+      input.className = 'param-input';
+      input.value = param.default || '';
+
+      inputElements[param.name] = input;
+      field.appendChild(label);
+      field.appendChild(input);
+      paramsDiv.appendChild(field);
+    });
+
+    card.appendChild(paramsDiv);
+
+    paramBtn.onclick = () => {
+      const isOpen = paramsDiv.style.display === 'flex';
+      paramsDiv.style.display = isOpen ? 'none' : 'flex';
+      paramBtn.style.background = isOpen ? '#4b5563' : '#374151';
+    };
+
+    // Response panel
+    const responsePanel = document.createElement('div');
+    responsePanel.className = 'response-panel';
+
+    // Header (신규 API URL + 상태)
+    const resHeader = document.createElement('div');
+    resHeader.className = 'response-header';
+    resHeader.innerHTML = `<span style="font-family:monospace;font-size:0.85rem;" class="panel-url">${fullPath}</span><span class="status-badge"></span>`;
+    responsePanel.appendChild(resHeader);
+
+    // 기존 API 매핑 확인
+    const legacyPath = (typeof API_MAPPING !== 'undefined') && API_MAPPING.endpoints && API_MAPPING.endpoints[fullPath];
+    const hasLegacy = !!(legacyPath && API_MAPPING.legacyBaseUrl);
+
+    let resBody, legacyBody, legacyStatusBadge;
+
+    if (hasLegacy) {
+      // split view
+      const splitView = document.createElement('div');
+      splitView.className = 'response-split';
+
+      const col1 = document.createElement('div');
+      col1.className = 'response-col';
+      col1.innerHTML = `<div class="col-title"><span class="col-label-new">● 신규</span> &nbsp;${API_MAPPING.newBaseUrl}${fullPath}</div>`;
+      resBody = document.createElement('pre');
+      resBody.className = 'response-body';
+      col1.appendChild(resBody);
+
+      const col2 = document.createElement('div');
+      col2.className = 'response-col';
+      const legacyEndpointPath = typeof legacyPath === 'object' ? legacyPath.legacyPath : legacyPath;
+      col2.innerHTML = `<div class="col-title"><span class="col-label-old">● 기존</span> &nbsp;${API_MAPPING.legacyBaseUrl}${legacyEndpointPath}</div>`;
+      legacyBody = document.createElement('pre');
+      legacyBody.className = 'response-body legacy';
+      col2.appendChild(legacyBody);
+
+      // 기존 API 상태 뱃지
+      const legacyHeader = document.createElement('div');
+      legacyHeader.style.cssText = 'display:none;';
+      legacyStatusBadge = document.createElement('span');
+      legacyHeader.appendChild(legacyStatusBadge);
+
+      splitView.appendChild(col1);
+      splitView.appendChild(col2);
+      responsePanel.appendChild(splitView);
+    } else {
+      resBody = document.createElement('pre');
+      resBody.className = 'response-body';
+      responsePanel.appendChild(resBody);
+    }
+
+    const statusBadge = resHeader.querySelector('.status-badge');
+    const panelUrlText = resHeader.querySelector('.panel-url');
+
+    runBtn.onclick = () => {
+      const entries = Object.entries(inputElements)
+        .filter(([, input]) => input.value.trim() !== '')
+        .map(([key, input]) => [key, input.value.trim()]);
+      entries.push(['type', selectedType]);
+      const qs = new URLSearchParams(entries).toString();
+      const finalUrl = `${fullPath}?${qs}`;
+      panelUrlText.textContent = finalUrl;
+
+      if (hasLegacy) {
+        // paramMap 지원: 파라미터 이름이 기존 API와 다를 경우
+        const mapping = API_MAPPING.endpoints[fullPath];
+        const legacyEndpointPath = typeof mapping === 'object' ? mapping.legacyPath : mapping;
+        const paramMap = (typeof mapping === 'object' && mapping.paramMap) ? mapping.paramMap : {};
+        let legacyQs = qs;
+        if (Object.keys(paramMap).length > 0) {
+          const newParams = new URLSearchParams(qs);
+          const legacyParams = new URLSearchParams();
+          newParams.forEach((v, k) => legacyParams.set(paramMap[k] || k, v));
+          legacyQs = legacyParams.toString();
+        }
+        const legacyUrl = API_MAPPING.legacyBaseUrl + legacyEndpointPath + (legacyQs ? '?' + legacyQs : '');
+        testApiCompare(finalUrl, legacyUrl, runBtn, responsePanel, statusBadge, resBody, legacyBody);
+      } else {
+        testApi(finalUrl, runBtn, responsePanel, statusBadge, resBody);
+      }
+    };
+
+    wrapper.appendChild(card);
+    wrapper.appendChild(responsePanel);
+    endpointList.appendChild(wrapper);
+  });
+}
+
+async function fetchJson(url) {
+  const res = await fetch(url);
+  const contentType = res.headers.get('content-type') || '';
+  const text = contentType.includes('application/json')
+    ? JSON.stringify(await res.json(), null, 2)
+    : await res.text();
+  return { status: res.status, statusText: res.statusText, ok: res.ok, text };
+}
+
+async function testApi(url, btnElement, panelElement, statusBadge, bodyElement) {
+  const originalText = btnElement.textContent;
+  btnElement.innerHTML = '<div class="spinner"></div>';
+  btnElement.disabled = true;
+  panelElement.style.display = 'flex';
+  statusBadge.textContent = 'Loading...';
+  statusBadge.className = 'status-badge';
+  bodyElement.textContent = 'Fetching data...';
+  try {
+    const r = await fetchJson((API_MAPPING.newBaseUrl || 'http://localhost:8000') + url);
+    statusBadge.textContent = `${r.status} ${r.statusText}`;
+    statusBadge.className = 'status-badge ' + (r.ok ? 'status-success' : 'status-error');
+    bodyElement.textContent = r.text;
+  } catch (e) {
+    statusBadge.textContent = 'Error';
+    statusBadge.className = 'status-badge status-error';
+    bodyElement.textContent = `Fetch failed: ${e.message}\n\nMake sure the API server is running on localhost:8000.`;
+  } finally {
+    btnElement.textContent = originalText;
+    btnElement.disabled = false;
+  }
+}
+
+async function testApiCompare(newUrl, legacyUrl, btnElement, panelElement, statusBadge, newBody, legacyBody) {
+  const originalText = btnElement.textContent;
+  btnElement.innerHTML = '<div class="spinner"></div>';
+  btnElement.disabled = true;
+  panelElement.style.display = 'flex';
+  statusBadge.textContent = 'Loading...';
+  statusBadge.className = 'status-badge';
+  newBody.textContent = 'Fetching...';
+  legacyBody.textContent = 'Fetching...';
+
+  // 신규 + 기존 API 병렬 호출
+  const [newResult, legacyResult] = await Promise.allSettled([
+    fetchJson((API_MAPPING.newBaseUrl || 'http://localhost:8000') + newUrl),
+    fetchJson(legacyUrl)
+  ]);
+
+  // 신규 API
+  if (newResult.status === 'fulfilled') {
+    const r = newResult.value;
+    statusBadge.textContent = `신규 ${r.status} ${r.statusText}`;
+    statusBadge.className = 'status-badge ' + (r.ok ? 'status-success' : 'status-error');
+    newBody.textContent = r.text;
+  } else {
+    statusBadge.textContent = '신규 Error';
+    statusBadge.className = 'status-badge status-error';
+    newBody.textContent = `Fetch failed: ${newResult.reason?.message}`;
+  }
+
+  // 기존 API
+  if (legacyResult.status === 'fulfilled') {
+    const r = legacyResult.value;
+    legacyBody.textContent = r.text;
+  } else {
+    legacyBody.textContent = `Fetch failed: ${legacyResult.reason?.message}\n\n기존 API 서버 주소가 올바른지 확인하세요.\n(api_mapping.js → legacyBaseUrl)`;
+  }
+
+  btnElement.textContent = originalText;
+  btnElement.disabled = false;
+}
+
+init();
+</script>
+</body>
+</html>

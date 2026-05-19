@@ -3,3 +3,4 @@ uvicorn
 aioodbc
 pydantic
 pydantic-settings
+aiofiles

@@ -1,0 +1,12 @@
+2026-05-15 06:42:09 | INFO     | db.connection | ODBC connection pool created successfully.
+2026-05-15 06:42:09 | INFO     | main | Database connection test successful.
+2026-05-15 06:42:18 | INFO     | db.connection | ODBC connection pool closed.
+2026-05-15 06:42:19 | INFO     | db.connection | ODBC connection pool created successfully.
+2026-05-15 06:42:19 | INFO     | main | Database connection test successful.
+2026-05-15 06:42:40 | INFO     | db.connection | ODBC connection pool closed.
+2026-05-15 06:42:41 | INFO     | db.connection | ODBC connection pool created successfully.
+2026-05-15 06:42:41 | INFO     | main | Database connection test successful.
+2026-05-15 06:44:55 | INFO     | db.connection | ODBC connection pool closed.
+2026-05-15 06:44:56 | INFO     | db.connection | ODBC connection pool created successfully.
+2026-05-15 06:44:56 | INFO     | main | Database connection test successful.
+2026-05-15 06:46:29 | INFO     | db.connection | ODBC connection pool closed.

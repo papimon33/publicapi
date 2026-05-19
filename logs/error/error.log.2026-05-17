@@ -1,0 +1,1 @@
+2026-05-17 17:36:31 | ERROR    | db.connection | Error creating ODBC connection pool: ('HY000', '[HY000] [Oracle][ODBC][Ora]ORA-12541: TNS:no listener\n (12541) (SQLDriverConnect)') | DSN: DRIVER={Oracle};DBQ=***-db:1521/XE;UID=system;PWD=***;

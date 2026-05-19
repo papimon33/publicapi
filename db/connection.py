@@ -1,57 +1,90 @@
+import asyncio
 import aioodbc
 import logging
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 from core.config import settings
 
 logger = logging.getLogger(__name__)
+
+# DB_ACQUIRE_TIMEOUT: create_pool(timeout=)과 일치시켜 사용
+# DB_QUERY_TIMEOUT: 서비스/라우터 레이어의 cursor.execute() 시점에 asyncio.timeout()으로 적용
+DB_ACQUIRE_TIMEOUT = 30
+DB_QUERY_TIMEOUT = 30
+
 
 class DatabasePool:
     def __init__(self):
         self.pool = None
 
     async def connect(self):
-        # DSN(Data Source Name) 문자열 구성
-        # 데이터베이스 종류나 드라이버에 따라 형태가 다를 수 있습니다.
         dsn = (
             f"DRIVER={{{settings.odbc_driver}}};"
             f"DBQ={settings.db_server}:{settings.db_port}/{settings.db_name};"
             f"UID={settings.db_user};"
             f"PWD={settings.db_password};"
         )
+        # 로그용 마스킹 DSN (비밀번호 노출 방지)
+        safe_dsn = dsn.replace(settings.db_password, "***")
         try:
-            # aioodbc를 사용해 비동기 커넥션 풀을 생성합니다.
-            # 다수의 호출이 발생하므로 적절한 minsize와 maxsize를 지정합니다.
             self.pool = await aioodbc.create_pool(
-                dsn=dsn, 
-                minsize=1, 
-                maxsize=20, 
-                pool_recycle=3600 # 1시간마다 커넥션 갱신 (유휴 커넥션 끊김 방지)
+                dsn=dsn,
+                minsize=1,
+                maxsize=20,
+                # pool_recycle은 aioodbc에서 지원되지 않으므로 제거
+                timeout=DB_ACQUIRE_TIMEOUT,  # 풀 내부 커넥션 획득 타임아웃
             )
             logger.info("ODBC connection pool created successfully.")
         except Exception as e:
-            logger.error(f"Error creating ODBC connection pool: {e}")
+            logger.error(f"Error creating ODBC connection pool: {e} | DSN: {safe_dsn}")
             raise
 
     async def disconnect(self):
-        if self.pool:
-            self.pool.close()
-            await self.pool.wait_closed()
-            logger.info("ODBC connection pool closed.")
+        if not self.pool:
+            logger.warning("disconnect() called but pool was never initialized.")
+            return
+        self.pool.close()
+        await self.pool.wait_closed()
+        self.pool = None
+        logger.info("ODBC connection pool closed.")
+
 
 db_pool = DatabasePool()
 
-# Lifespan 이벤트를 위한 초기화 함수
+
 async def create_pool():
     await db_pool.connect()
+
 
 async def close_pool():
     await db_pool.disconnect()
 
-# FastAPI 의존성(Dependency) 주입을 위한 제너레이터
+
 async def get_connection() -> AsyncGenerator[aioodbc.Connection, None]:
+    """
+    FastAPI Depends용 커넥션 제공 제너레이터.
+
+    [설계 원칙]
+    - 커넥션 획득 타임아웃은 create_pool(timeout=DB_ACQUIRE_TIMEOUT)에서 처리.
+      이중으로 asyncio.timeout()을 감싸면 예외 처리가 복잡해지므로 제외.
+    - 단일 쿼리 타임아웃(DB_QUERY_TIMEOUT)은 이 레이어에서 적용하지 않음.
+      yield conn 전체를 감싸면 '단일 쿼리' 타임아웃이 아니라
+      '전체 API 요청 처리 시간' 타임아웃으로 동작하기 때문.
+      → 서비스/라우터 레이어에서 cursor.execute() 호출부에 직접 적용할 것:
+        async with asyncio.timeout(DB_QUERY_TIMEOUT):
+            await cursor.execute(...)
+    - finally 블록으로 비즈니스 로직 완료 또는 예외 발생 시에도
+      커넥션이 반드시 풀로 반환되도록 보장 (커넥션 누수 방지).
+    """
     if not db_pool.pool:
         raise RuntimeError("Database pool is not initialized")
-    
-    # 커넥션 풀에서 비동기로 커넥션을 획득하고 사용이 끝나면 반환합니다.
-    async with db_pool.pool.acquire() as conn:
+
+    conn = None
+    try:
+        conn = await db_pool.pool.acquire()
         yield conn
+    except Exception as e:
+        logger.error(f"Unexpected database connection error: {e}")
+        raise
+    finally:
+        if conn is not None:
+            await db_pool.pool.release(conn)

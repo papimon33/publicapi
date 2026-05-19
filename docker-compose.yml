@@ -7,16 +7,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env.dev  # 실행 전 .env.sample을 복사하여 .env 파일을 생성해주세요
+      - .env
     volumes:
-      - .:/app  # 로컬 환경에서 소스코드 변경시 즉시 반영되도록 볼륨 마운트
+      - .:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-
-  oracle-db:
-    image: oracleinanutshell/oracle-xe-11g:latest
-    ports:
-      - 1521:1521
-      - 5500:5500
-      - 8080:8080
-    environment:
-      - NLS_LANG=KOREAN_KOREA.AL32UTF8
