@@ -1,3 +1,4 @@
+-- API: GET /airport/epi-gh/info
 SELECT 
     SUBSTR(A.BAS_YM, 1, 4) AS YYYY,
     ROUND(SUM(A.GAS + A.LIQUID+ A.CAR), 3) FUEL1,

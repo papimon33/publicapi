@@ -1,3 +1,4 @@
+-- API: GET /flight/schedule/dom
 SELECT 
     A.DOMESTIC_NUM, 
     A.DOMESTIC_START_TIME, 

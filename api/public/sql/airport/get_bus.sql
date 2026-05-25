@@ -1,3 +1,4 @@
+-- API: GET /airport/bus/info
 SELECT
     REPLACE(REPLACE(REPLACE(REPLACE(a.BUS_CATEGORY_KOR_NAME,'<br/>',''),'<br>',''),'</br>',''),'<bold>','')                             AS BUS_CATEGORY_KOR_NAME,
     REPLACE(REPLACE(REPLACE(REPLACE(b.BUS_DATA_GETON_KOR,'<br/>',''),'<br>',''),'</br>',''),'<bold>','')                                AS BUS_DATA_GETON_KOR   ,

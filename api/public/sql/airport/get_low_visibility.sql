@@ -1,0 +1,1 @@
+-- API: GET /airport/low-visibility/info

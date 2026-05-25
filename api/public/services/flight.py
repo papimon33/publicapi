@@ -21,7 +21,7 @@ async def fetch_routes_info(request: RoutesInfoRequest, page: PaginationParams, 
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
     return PaginationResponse[RoutesInfoResponse](body=_build_body([RoutesInfoResponse(**r) for r in result], page, total_count))
 
-async def fetch_aircraft_type(request: AircraftTypeRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[AircraftTypeResponse]:
+async def fetch_aircraft_status(request: AircraftStatusRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[AircraftStatusResponse]:
     query = get_sql_query('get_aircraft_type')
     query, params = build_conditions(query, request, [
         ('schAirCode', "AND T1.AIRPORT = ?"),
@@ -35,7 +35,7 @@ async def fetch_aircraft_type(request: AircraftTypeRequest, page: PaginationPara
     ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
-    return PaginationResponse[AircraftTypeResponse](body=_build_body([AircraftTypeResponse(**r) for r in result], page, total_count))
+    return PaginationResponse[AircraftStatusResponse](body=_build_body([AircraftStatusResponse(**r) for r in result], page, total_count))
 
 async def fetch_flight_status(request: FlightStatusRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[FlightStatusResponse]:
     query = get_sql_query('get_flight_status')

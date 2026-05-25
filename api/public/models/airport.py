@@ -2,6 +2,8 @@ from core.models import PublicRequest
 from pydantic import BaseModel
 from typing import Optional, List, Any
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/AirportBusInfo/businfo
+# 변경 API : https://apis.airport.co.kr/public/airport/bus/info
 class BusRequest(PublicRequest):
     schAirport: Optional[Any] = None
 
@@ -17,6 +19,8 @@ class BusResponse(BaseModel):
     BUS_DATA_COMNAME_KOR: Optional[Any] = None
     BUS_DATA_ETC_KOR: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/dailyExpectPassenger/dailyExpectPassenger
+# 변경 API : https://apis.airport.co.kr/public/airport/daily-expect-passenger/info
 class DailyExpectPassengerRequest(PublicRequest):
     schDate: Optional[Any] = None
     schAirport: Optional[Any] = None
@@ -28,6 +32,8 @@ class DailyExpectPassengerResponse(BaseModel):
     TOF: Optional[Any] = None
     CONGEST_YN: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/totalAirportStatsService/getAirportStats
+# 변경 API : https://apis.airport.co.kr/public/airport/transport-stats/info
 class TransportStatsRequest(PublicRequest):
     startDePd: Optional[Any] = None
     endDePd: Optional[Any] = None
@@ -50,6 +56,8 @@ class TransportStatsResponse(BaseModel):
     DepCargo: Optional[Any] = None
     TotalCargo: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/taxiWaitInfo/getJejuTaxiWaitInfo
+# 변경 API : https://apis.airport.co.kr/public/airport/taxi-wait/cju
 class TaxiWaitCjuRequest(PublicRequest):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
@@ -60,6 +68,8 @@ class TaxiWaitCjuResponse(BaseModel):
     wit_Pax_C_T: Optional[Any] = None
     xpt_Bdg_Mi: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/AirportLeaseInfo/airportLeaseContract
+# 변경 API : https://apis.airport.co.kr/public/airport/lease-contract/info
 class LeaseContractRequest(PublicRequest):
     schAirportCode: Optional[Any] = None
     contactStatus: Optional[Any] = None
@@ -76,6 +86,8 @@ class LeaseContractResponse(BaseModel):
     CONTRACT_END_DATE: Optional[Any] = None
     CONTRACT_STATUS: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/AirportCodeList/getAirportCodeList
+# 변경 API : https://apis.airport.co.kr/public/airport/code/info
 class AirportCodeRequest(PublicRequest):
     cityCode: Optional[Any] = None
     cityKor: Optional[Any] = None
@@ -90,6 +102,8 @@ class AirportCodeResponse(BaseModel):
     CITY_JPN: Optional[Any] = None
     CITY_CHN: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/airportLowVisibility/getAirportLowVisibilityIdx
+# 변경 API : https://apis.airport.co.kr/public/airport/low-visibility/idx
 class LowVisibilityIdxRequest(PublicRequest):
     idx: Optional[Any] = None
 
@@ -100,6 +114,8 @@ class LowVisibilityIdxResponse(BaseModel):
     FRST_REG_TS: Optional[Any] = None
     REG_DATE: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/EpiDataService/getEpiGhDataService
+# 변경 API : https://apis.airport.co.kr/public/airport/epi-gh/info
 class EpiGhRequest(PublicRequest):
     sdate: Optional[Any] = None
     edate: Optional[Any] = None
@@ -118,6 +134,8 @@ class EpiGhResponse(BaseModel):
     STEAM2: Optional[Any] = None
     DEGU: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/airportLowVisibility/getAirportLowVisibilityLast
+# 변경 API : https://apis.airport.co.kr/public/airport/low-visibility/latest
 class LowVisibilityLatestRequest(PublicRequest):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
@@ -126,6 +144,8 @@ class LowVisibilityLatestResponse(BaseModel):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/airportLowVisibility/getAirportLowVisibility
+# 변경 API : https://apis.airport.co.kr/public/airport/low-visibility/info
 class LowVisibilityRequest(PublicRequest):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
@@ -134,6 +154,8 @@ class LowVisibilityResponse(BaseModel):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/contractService/getContractNo
+# 변경 API : https://apis.airport.co.kr/public/airport/retail-contract/info
 class RetailContractRequest(PublicRequest):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
@@ -142,6 +164,8 @@ class RetailContractResponse(BaseModel):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
 
+# 기존 API : https://api.odcloud.kr/api/getAPRTPsgrCongestion/v1/aprtPsgrCongestion
+# 변경 API : https://apis.airport.co.kr/public/airport/congestion/v1
 class CongestionV1Request(PublicRequest):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
@@ -150,6 +174,8 @@ class CongestionV1Response(BaseModel):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
 
+# 기존 API : https://api.odcloud.kr/api/getAPRTPsgrCongestion_v2/v1/aprtPsgrCongestionV2
+# 변경 API : https://apis.airport.co.kr/public/airport/congestion/v2
 class CongestionV2Request(PublicRequest):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
@@ -158,6 +184,8 @@ class CongestionV2Response(BaseModel):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/jejuOutStats/getJejuOutCntMonth
+# 변경 API : https://apis.airport.co.kr/public/airport/montly-inout/cju
 class MonthlyInoutCjuRequest(PublicRequest):
     flightDate: Optional[Any] = None
     line: Optional[Any] = None
@@ -167,10 +195,12 @@ class MonthlyInoutCjuResponse(BaseModel):
     LINE: Optional[Any] = None
     JEJUOUT: Optional[Any] = None
 
-class WaitTimeV1Request(PublicRequest):
+# 기존 API : https://api.odcloud.kr/api/getAPRTWaitTime/v1/aprtWaitTime
+# 변경 API : https://apis.airport.co.kr/public/airport/process-time/v1
+class ProcessTimeV1Request(PublicRequest):
     pass
 
-class WaitTimeV1Response(BaseModel):
+class ProcessTimeV1Response(BaseModel):
     IATA_APCD: Optional[Any] = None
     OPR_STS_CD: Optional[Any] = None
     PRC_HR: Optional[Any] = None
@@ -180,10 +210,12 @@ class WaitTimeV1Response(BaseModel):
     STY_TCT_AVG_C: Optional[Any] = None
     STY_TCT_AVG_D: Optional[Any] = None
 
-class WaitTimeV2Request(PublicRequest):
+# 기존 API : https://api.odcloud.kr/api/getAPRTWaitTime_v2/v1/aprtWaitTimeV2
+# 변경 API : https://apis.airport.co.kr/public/airport/process-time/v2
+class ProcessTimeV2Request(PublicRequest):
     pass
 
-class WaitTimeV2Response(BaseModel):
+class ProcessTimeV2Response(BaseModel):
     IATA_APCD: Optional[Any] = None
     OPR_STS_CD: Optional[Any] = None
     PRC_HR: Optional[Any] = None
@@ -192,4 +224,3 @@ class WaitTimeV2Response(BaseModel):
     STY_TCT_AVG_B: Optional[Any] = None
     STY_TCT_AVG_C: Optional[Any] = None
     STY_TCT_AVG_D: Optional[Any] = None
-

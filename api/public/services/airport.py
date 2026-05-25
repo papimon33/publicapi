@@ -189,16 +189,16 @@ async def fetch_monthly_inout_cju(request: MonthlyInoutCjuRequest, page: Paginat
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
     return PaginationResponse[MonthlyInoutCjuResponse](body=_build_body([MonthlyInoutCjuResponse(**row) for row in result], page, total_count))
 
-async def fetch_wait_time_v1(request: WaitTimeV1Request, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[WaitTimeV1Response]:
-    query = get_sql_query('get_wait_time_v1')
+async def fetch_process_time_v1(request: ProcessTimeV1Request, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ProcessTimeV1Response]:
+    query = get_sql_query('get_process_time_v1')
     query, params = build_conditions(query, request, [])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
-    return PaginationResponse[WaitTimeV1Response](body=_build_body([WaitTimeV1Response(**row) for row in result], page, total_count))
+    return PaginationResponse[ProcessTimeV1Response](body=_build_body([ProcessTimeV1Response(**row) for row in result], page, total_count))
 
-async def fetch_wait_time_v2(request: WaitTimeV2Request, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[WaitTimeV2Response]:
-    query = get_sql_query('get_wait_time_v2')
+async def fetch_process_time_v2(request: ProcessTimeV2Request, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ProcessTimeV2Response]:
+    query = get_sql_query('get_process_time_v2')
     query, params = build_conditions(query, request, [])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
-    return PaginationResponse[WaitTimeV2Response](body=_build_body([WaitTimeV2Response(**row) for row in result], page, total_count))
+    return PaginationResponse[ProcessTimeV2Response](body=_build_body([ProcessTimeV2Response(**row) for row in result], page, total_count))

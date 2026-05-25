@@ -1,3 +1,4 @@
+-- API: GET /flight/schedule/int
 SELECT
     A.INTERNATIONAL_IO_TYPE,
     A.INTERNATIONAL_NUM,

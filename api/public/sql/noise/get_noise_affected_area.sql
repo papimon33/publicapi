@@ -1,3 +1,4 @@
+-- API: GET /noise/affected-area/info
 SELECT CITY1, CITY2, DONG, LI, JIBUN, STREET, BUILD, BUILDNO, HOSU, YN
 
 FROM ( SELECT 

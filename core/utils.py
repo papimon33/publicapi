@@ -121,17 +121,15 @@ def wrap_pagenation_sql(original_sql: str, request: Any) -> Tuple[str, str]:
             flags=re.IGNORECASE | re.DOTALL
         )
 
-        # Count SQL
-        count_sql = f"SELECT COUNT(*) FROM ({sql_for_count})"
+        # Count SQL — 닫는 ) 를 별도 줄에 써야 SQL 내 -- 주석이 ) 를 삼키지 않음
+        count_sql = f"SELECT COUNT(*) FROM (\n{sql_for_count}\n)"
 
         # Paginated SQL (Oracle / Tibero ROWNUM 방식)
-        paginated_sql = f"""
-        SELECT * FROM (
-            SELECT A.*, ROWNUM AS RNUM FROM (
-                {original_sql}
-            ) A WHERE ROWNUM <= {end_row}
-        ) WHERE RNUM > {start_row}
-        """
+        paginated_sql = f"""SELECT * FROM (
+    SELECT A.*, ROWNUM AS RNUM FROM (
+{original_sql}
+    ) A WHERE ROWNUM <= {end_row}
+) WHERE RNUM > {start_row}"""
         # 반환 순서: (count_sql, paginated_sql) — execute_query 파라미터 순서와 일치
         return count_sql, paginated_sql
     return "", original_sql

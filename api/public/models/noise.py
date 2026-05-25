@@ -2,6 +2,8 @@ from core.models import PublicRequest
 from pydantic import BaseModel
 from typing import Optional, List, Any
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/noiseMeasureService/getNoiseMeasure
+# 변경 API : https://apis.airport.co.kr/public/noise/measure/info
 class NoiseStatsRequest(PublicRequest):
     airportCode: Optional[Any] = None
     year: Optional[Any] = None
@@ -22,6 +24,8 @@ class NoiseStatsResponse(BaseModel):
     MONTH12: Optional[Any] = None
     AVERAGE: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/noise/noiseAffectedArea
+# 변경 API : https://apis.airport.co.kr/public/noise/affected-area/info
 class NoiseAffectedAreaRequest(PublicRequest):
     city1: Optional[Any] = None
     city2: Optional[Any] = None
@@ -44,6 +48,8 @@ class NoiseAffectedAreaResponse(BaseModel):
     BUILDNO: Optional[Any] = None
     HOSU: Optional[Any] = None
 
+# 기존 API : https://api.odcloud.kr/api/getNoiseMeasureRT/v1/noiseMeasureRT
+# 변경 API : https://apis.airport.co.kr/public/noise/realtime-measure/gmp
 class NoiseRealtimeGmpRequest(PublicRequest):
     pass
 
@@ -54,6 +60,8 @@ class NoiseRealtimeGmpResponse(BaseModel):
     NMT_LVL: Optional[Any] = None
     NMT_NO: Optional[Any] = None
 
+# 기존 API : https://api.odcloud.kr/api/getNoiseMeasurePUS/v1/noiseMeasurePUS
+# 변경 API : https://apis.airport.co.kr/public/noise/realtime-measure/pus
 class NoiseRealtimePusRequest(PublicRequest):
     pass
 
@@ -63,4 +71,3 @@ class NoiseRealtimePusResponse(BaseModel):
     NMT_DT: Optional[Any] = None
     NMT_LVL: Optional[Any] = None
     NMT_NO: Optional[Any] = None
-

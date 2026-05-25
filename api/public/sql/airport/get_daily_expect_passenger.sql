@@ -1,3 +1,4 @@
+-- API: GET /airport/daily-expect-passenger/info
 SELECT 
     ARP,
     AOD,

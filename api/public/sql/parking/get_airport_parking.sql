@@ -1,3 +1,4 @@
+-- API: GET /parking/realtime-status/info
 SELECT A.PARKING_IINCNT,
        A.PARKING_IOUTCNT,
        A.PARKING_ISTAY,

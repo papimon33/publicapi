@@ -2,6 +2,8 @@ from core.models import PublicRequest
 from pydantic import BaseModel
 from typing import Optional, List, Any
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/AirportParking/airportparkingRT
+# 변경 API : https://apis.airport.co.kr/public/parking/realtime-status/info
 class AirportParkingRequest(PublicRequest):
     schAirportCode: Optional[Any] = None
 
@@ -12,6 +14,8 @@ class AirportParkingResponse(BaseModel):
     APR_KOR: Optional[Any] = None
     APR_ENG: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/AirportParkingCongestion/airportParkingCongestionRT
+# 변경 API : https://apis.airport.co.kr/public/parking/congestion/info
 class ParkingCongestionRequest(PublicRequest):
     schAirportCode: Optional[Any] = None
 
@@ -25,13 +29,17 @@ class ParkingCongestionResponse(BaseModel):
     SYS_GETDATE: Optional[Any] = None
     SYS_GETTIME: Optional[Any] = None
 
-class ValetCongestionRequest(PublicRequest):
+# 기존 API : http://openapi.airport.co.kr/service/rest/ValetParking/getGmpDValetParking
+# 변경 API : https://apis.airport.co.kr/public/parking/valet-congestion/gmp-dom
+class ValetCongestionGmpDomRequest(PublicRequest):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
 
-class ValetCongestionResponse(BaseModel):
+class ValetCongestionGmpDomResponse(BaseModel):
     CDGR: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/AirportParkingFee/parkingfee
+# 변경 API : https://apis.airport.co.kr/public/parking/fee/info
 class ParkingFeeRequest(PublicRequest):
     schAirportCode: Optional[Any] = None
 
@@ -65,11 +73,12 @@ class ParkingFeeResponse(BaseModel):
     PARKING_HOLI_MAX_ACCOUNTD: Optional[Any] = None
     PARKING_HOLI_FREE_MD: Optional[Any] = None
 
-class ParkingCellGmpRequest(PublicRequest):
+# 기존 API : http://openapi.airport.co.kr/service/rest/airportParkingCell/getGMPParkingCell
+# 변경 API : https://apis.airport.co.kr/public/parking/available-spaces/gmp-int-indoor
+class AvailableSpacesGmpIntIndoorRequest(PublicRequest):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
 
-class ParkingCellGmpResponse(BaseModel):
+class AvailableSpacesGmpIntIndoorResponse(BaseModel):
     # 모델에 대응하는 SQL을 찾지 못함
     pass
-

@@ -1,3 +1,4 @@
+-- API: GET /flight/routes/info
 SELECT
     LINES.ARP    AS ARP,
     LINES.ODP    AS ODP,

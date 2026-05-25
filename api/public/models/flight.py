@@ -2,6 +2,8 @@ from core.models import PublicRequest
 from pydantic import BaseModel
 from typing import Optional, List, Any
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/statusofPaxSeasonalFlight/getFlightStatusList
+# 변경 API : https://apis.airport.co.kr/public/flight/status/taxfree
 class FlightStatusTaxfreeRequest(PublicRequest):
     schStTime: Optional[Any] = None
     schEdTime: Optional[Any] = None
@@ -19,6 +21,8 @@ class FlightStatusTaxfreeResponse(BaseModel):
     AIR_FLN: Optional[Any] = None
     LINE: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/serviceLine/serviceLines
+# 변경 API : https://apis.airport.co.kr/public/flight/routes/info
 class RoutesInfoRequest(PublicRequest):
     schStDate: Optional[Any] = None
     schEdDate: Optional[Any] = None
@@ -32,7 +36,9 @@ class RoutesInfoResponse(BaseModel):
     KM: Optional[Any] = None
     TIME: Optional[Any] = None
 
-class AircraftTypeRequest(PublicRequest):
+# 기존 API : http://openapi.airport.co.kr/service/rest/FlightStatusAPLList/getFlightStatusAPLList
+# 변경 API : https://apis.airport.co.kr/public/flight/aircraft-status/info
+class AircraftStatusRequest(PublicRequest):
     schStTime: Optional[Any] = None
     schEdTime: Optional[Any] = None
     schAirCode: Optional[Any] = None
@@ -42,7 +48,7 @@ class AircraftTypeRequest(PublicRequest):
     schAPLno: Optional[Any] = None
     schAPM: Optional[Any] = None
 
-class AircraftTypeResponse(BaseModel):
+class AircraftStatusResponse(BaseModel):
     FID: Optional[Any] = None
     AIR_FLN: Optional[Any] = None
     AIRLINE_KOREAN: Optional[Any] = None
@@ -63,6 +69,8 @@ class AircraftTypeResponse(BaseModel):
     RMK_ENG: Optional[Any] = None
     STD: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/StatusOfFlights/getDepFlightStatusList
+# 변경 API : https://apis.airport.co.kr/public/flight/status/depart
 class FlightStatusDepartRequest(PublicRequest):
     searchday: Optional[Any] = None
     from_time: Optional[Any] = None
@@ -98,6 +106,8 @@ class FlightStatusDepartResponse(BaseModel):
     ORIG_SEARCHDAY: Optional[Any] = None
     RMK_KOR: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/StatusOfFlights/getArrFlightStatusList
+# 변경 API : https://apis.airport.co.kr/public/flight/status/arrival
 class FlightStatusArrivalRequest(PublicRequest):
     searchday: Optional[Any] = None
     from_time: Optional[Any] = None
@@ -133,6 +143,8 @@ class FlightStatusArrivalResponse(BaseModel):
     ORIG_SEARCHDAY: Optional[Any] = None
     RMK_KOR: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/statusofPaxSeasonalFlight/getDPaxSfitSched
+# 변경 API : https://apis.airport.co.kr/public/flight/schedule/taxfree-dom
 class FlightScheduleTaxfreeDomRequest(PublicRequest):
     fid: Optional[Any] = None
     flightId: Optional[Any] = None
@@ -167,6 +179,8 @@ class FlightScheduleTaxfreeDomResponse(BaseModel):
     arrvCityCode: Optional[Any] = None
     arrvCity: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/statusofPaxSeasonalFlight/getIPaxSfitSched
+# 변경 API : https://apis.airport.co.kr/public/flight/schedule/taxfree-int
 class FlightScheduleTaxfreeIntRequest(PublicRequest):
     fid: Optional[Any] = None
     flightId: Optional[Any] = None
@@ -201,6 +215,8 @@ class FlightScheduleTaxfreeIntResponse(BaseModel):
     arrvCityCode: Optional[Any] = None
     arrvCity: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr:80/service/rest/FlightApronStateList/getCJUFlightApronStatusList
+# 변경 API : https://apis.airport.co.kr/public/flight/apron-status/cju
 class ApronCjuRequest(PublicRequest):
     FLIGHT_DATE: Optional[Any] = None
     STD: Optional[Any] = None
@@ -227,6 +243,8 @@ class ApronCjuResponse(BaseModel):
     BAGGAGE_CLAIM: Optional[Any] = None
     GATE: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/FlightApronStateList/getFlightApronStatusList
+# 변경 API : https://apis.airport.co.kr/public/flight/apron-status/pus
 class ApronPusRequest(PublicRequest):
     flightdate: Optional[Any] = None
     std: Optional[Any] = None
@@ -253,6 +271,8 @@ class ApronPusResponse(BaseModel):
     BAGGAGE_CLAIM: Optional[Any] = None
     GATE: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/FlightApronStateList/getGMPFlightApronStatusList
+# 변경 API : https://apis.airport.co.kr/public/flight/apron-status/gmp
 class ApronGmpRequest(PublicRequest):
     FLIGHT_DATE: Optional[Any] = None
     STD: Optional[Any] = None
@@ -278,6 +298,8 @@ class ApronGmpResponse(BaseModel):
     BAGGAGE_CLAIM: Optional[Any] = None
     GATE: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/FlightScheduleList/getDflightScheduleList
+# 변경 API : https://apis.airport.co.kr/public/flight/schedule/dom
 class FlightScheduleDomRequest(PublicRequest):
     schDate: Optional[Any] = None
     schDeptCityCode: Optional[Any] = None
@@ -292,6 +314,8 @@ class FlightScheduleDomResponse(BaseModel):
     ARRIVALCITY: Optional[Any] = None
     FLIGHT_PURPOSE: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/FlightScheduleList/getIflightScheduleListt
+# 변경 API : https://apis.airport.co.kr/public/flight/schedule/int
 class FlightScheduleIntRequest(PublicRequest):
     schDate: Optional[Any] = None
     schDeptCityCode: Optional[Any] = None
@@ -321,6 +345,8 @@ class FlightScheduleIntResponse(BaseModel):
     CITY: Optional[Any] = None
     FLIGHT_PURPOSE: Optional[Any] = None
 
+# 기존 API : https://api.odcloud.kr/api/FlightStatusListDTL/v1/getFlightStatusListDetail
+# 변경 API : https://apis.airport.co.kr/public/flight/status/detail
 class FlightStatusDetailRequest(PublicRequest):
     pass
 
@@ -346,6 +372,8 @@ class FlightStatusDetailResponse(BaseModel):
     RMK_KOR: Optional[Any] = None
     RMK_ENG: Optional[Any] = None
 
+# 기존 API : http://openapi.airport.co.kr/service/rest/FlightStatusList/getFlightStatusList
+# 변경 API : https://apis.airport.co.kr/public/flight/status/info
 class FlightStatusRequest(PublicRequest):
     schStTime: Optional[Any] = None
     schEdTime: Optional[Any] = None

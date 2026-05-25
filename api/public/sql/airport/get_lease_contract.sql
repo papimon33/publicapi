@@ -1,3 +1,4 @@
+-- API: GET /airport/lease-contract/info
 SELECT 
     A.ETP_NM                                AS STORE_NAME,
     CASE

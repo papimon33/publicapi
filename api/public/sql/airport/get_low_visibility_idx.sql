@@ -1,3 +1,4 @@
+-- API: GET /airport/low-visibility/idx
 SELECT
     IDX,
     MTP,

@@ -1,3 +1,4 @@
+-- API: GET /airport/taxi-wait/cju
 SELECT 
     PRC_DTM       AS prcdtm,
     WIT_TAXI_CT   AS wit_Taxi_C_T,

@@ -1,3 +1,4 @@
+-- API: GET /airport/code/info
 SELECT
     CITY_CODE,
     CITY_KOR ,

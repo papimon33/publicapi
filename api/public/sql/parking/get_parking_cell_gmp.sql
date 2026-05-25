@@ -1,0 +1,1 @@
+-- API: GET /parking/available-spaces/gmp-int-indoor

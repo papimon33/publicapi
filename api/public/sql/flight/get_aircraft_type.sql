@@ -1,3 +1,4 @@
+-- API: GET /flight/aircraft-status/info
 SELECT 
     CELL_ID         AS cell_id         ,
     PARKING_NAME    AS parking_name    ,

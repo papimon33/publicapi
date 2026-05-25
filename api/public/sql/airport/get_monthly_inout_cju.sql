@@ -1,3 +1,4 @@
+-- API: GET /airport/montly-inout/cju
 SELECT
     A_YYYYMM AS YM,
     A_LINE AS LINE,

@@ -1,3 +1,4 @@
+-- API: GET /flight/status/depart
 WITH BASE_DATA AS (
     SELECT 
         T1.FID,

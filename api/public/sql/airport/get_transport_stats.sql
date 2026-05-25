@@ -1,3 +1,4 @@
+-- API: GET /airport/transport-stats/info
 SELECT 
     DECODE(OD.KOR_N, '', AP.A_AIRPORT, OD.KOR_N)        AS AIRPORT          ,
     IOC                                                 AS ArrFlgt          ,

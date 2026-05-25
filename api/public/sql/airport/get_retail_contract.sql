@@ -1,3 +1,4 @@
+-- API: GET /airport/retail-contract/info
 
 /*comment 
 홈페이지 DB가 아님

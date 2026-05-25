@@ -6,12 +6,12 @@ from core.models import PaginationResponse, PaginationParams
 from core.utils import build_conditions, get_sql_query, wrap_pagenation_sql, execute_query
 
 
-async def fetch_valet_congestion(request: ValetCongestionRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ValetCongestionResponse]:
+async def fetch_valet_congestion_gmp_dom(request: ValetCongestionGmpDomRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ValetCongestionGmpDomResponse]:
     query = get_sql_query('get_valet_congestion')
     query, params = build_conditions(query, request, [])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
-    return PaginationResponse[ValetCongestionResponse](body={"data": [ValetCongestionResponse(**row) for row in result], "numOfRows": page.numOfRows, "pageNo": page.pageNo, "totalCount": total_count})
+    return PaginationResponse[ValetCongestionGmpDomResponse](body={"data": [ValetCongestionGmpDomResponse(**row) for row in result], "numOfRows": page.numOfRows, "pageNo": page.pageNo, "totalCount": total_count})
 
 async def fetch_parking_congestion(request: ParkingCongestionRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ParkingCongestionResponse]:
     query = get_sql_query('get_parking_congestion')
@@ -36,9 +36,9 @@ async def fetch_airport_parking(request: AirportParkingRequest, page: Pagination
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
     return PaginationResponse[AirportParkingResponse](body={"data": [AirportParkingResponse(**row) for row in result], "numOfRows": page.numOfRows, "pageNo": page.pageNo, "totalCount": total_count})
 
-async def fetch_parking_cell_gmp(request: ParkingCellGmpRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ParkingCellGmpResponse]:
+async def fetch_available_spaces_gmp_int_indoor(request: AvailableSpacesGmpIntIndoorRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[AvailableSpacesGmpIntIndoorResponse]:
     query = get_sql_query('get_parking_cell_gmp')
     query, params = build_conditions(query, request, [])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
-    return PaginationResponse[ParkingCellGmpResponse](body={"data": [ParkingCellGmpResponse(**row) for row in result], "numOfRows": page.numOfRows, "pageNo": page.pageNo, "totalCount": total_count})
+    return PaginationResponse[AvailableSpacesGmpIntIndoorResponse](body={"data": [AvailableSpacesGmpIntIndoorResponse(**row) for row in result], "numOfRows": page.numOfRows, "pageNo": page.pageNo, "totalCount": total_count})

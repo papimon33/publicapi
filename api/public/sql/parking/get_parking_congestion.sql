@@ -1,3 +1,4 @@
+-- API: GET /parking/congestion/info
 SELECT CASE WHEN A.PARKING_AIRPORT_CODE = 1 THEN '김포국제공항'
             WHEN A.PARKING_AIRPORT_CODE = 2 THEN '김해국제공항'
             WHEN A.PARKING_AIRPORT_CODE = 3 THEN '제주국제공항'
