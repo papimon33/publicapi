@@ -41,8 +41,8 @@ async def fetch_lease_contract(request: LeaseContractRequest, page: PaginationPa
             params.append(apcd)
 
     # contractStatus: 값에 따라 SQL 조건 자체가 다름 (파라미터 없음)
-    if request.contactStatus:
-        status = str(request.contactStatus).upper()
+    if request.contractStatus:
+        status = str(request.contractStatus).upper()
         if status == 'ON':
             query = _insert_before_order(query, "AND TO_CHAR(A.LSE_CTR_ED_DT, 'YYYY-MM-DD') >= TO_CHAR(SYSDATE, 'YYYY-MM-DD')")
         elif status == 'EXP':
@@ -167,14 +167,18 @@ async def fetch_retail_contract(request: RetailContractRequest, page: Pagination
 
 async def fetch_congestion_v1(request: CongestionV1Request, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[CongestionV1Response]:
     query = get_sql_query('get_congestion_v1')
-    query, params = build_conditions(query, request, [])
+    query, params = build_conditions(query, request, [
+        ('schAirportCode', "AND IATA_APCD = ?"),
+    ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
     return PaginationResponse[CongestionV1Response](body=_build_body([CongestionV1Response(**row) for row in result], page, total_count))
 
 async def fetch_congestion_v2(request: CongestionV2Request, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[CongestionV2Response]:
     query = get_sql_query('get_congestion_v2')
-    query, params = build_conditions(query, request, [])
+    query, params = build_conditions(query, request, [
+        ('schAirportCode', "AND IATA_APCD = ?"),
+    ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
     return PaginationResponse[CongestionV2Response](body=_build_body([CongestionV2Response(**row) for row in result], page, total_count))
@@ -182,7 +186,7 @@ async def fetch_congestion_v2(request: CongestionV2Request, page: PaginationPara
 async def fetch_monthly_inout_cju(request: MonthlyInoutCjuRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[MonthlyInoutCjuResponse]:
     query = get_sql_query('get_monthly_inout_cju')
     query, params = build_conditions(query, request, [
-        ('flightDate', "AND A_YYYYMM = ?"),
+        ('ym', "AND A_YYYYMM = ?"),
         ('line', "AND A_LINE = ?"),
     ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
@@ -191,14 +195,18 @@ async def fetch_monthly_inout_cju(request: MonthlyInoutCjuRequest, page: Paginat
 
 async def fetch_process_time_v1(request: ProcessTimeV1Request, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ProcessTimeV1Response]:
     query = get_sql_query('get_process_time_v1')
-    query, params = build_conditions(query, request, [])
+    query, params = build_conditions(query, request, [
+        ('IATA_APCD', "AND IATA_APCD = ?"),
+    ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
     return PaginationResponse[ProcessTimeV1Response](body=_build_body([ProcessTimeV1Response(**row) for row in result], page, total_count))
 
 async def fetch_process_time_v2(request: ProcessTimeV2Request, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ProcessTimeV2Response]:
     query = get_sql_query('get_process_time_v2')
-    query, params = build_conditions(query, request, [])
+    query, params = build_conditions(query, request, [
+        ('IATA_APCD', "AND IATA_APCD = ?"),
+    ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
     return PaginationResponse[ProcessTimeV2Response](body=_build_body([ProcessTimeV2Response(**row) for row in result], page, total_count))

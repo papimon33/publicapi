@@ -1,27 +1,27 @@
 -- API: GET /flight/schedule/dom
 SELECT 
-    A.DOMESTIC_NUM, 
-    A.DOMESTIC_START_TIME, 
-    A.DOMESTIC_ARRIVAL_TIME, 
-    A.DOMESTIC_MON, 
-    A.DOMESTIC_TUE, 
-    A.DOMESTIC_WED, 
-    A.DOMESTIC_THU, 
-    A.DOMESTIC_FRI, 
-    A.DOMESTIC_SAT, 
-    A.DOMESTIC_SUN, 
-    A.DOMESTIC_STDATE,
-    A.DOMESTIC_EDDATE,
-    B.AIRLINE_KOREAN,
-    B.AIRLINE_ENGLISH,
-    B.AIRLINE_HOMEPAGE_URL, 
-    A.DOMESTIC_START_CITY AS STARTCITY_CODE,
-    (SELECT CITY_KOR FROM AIRPORT_CITY_CODE WHERE CITY_CODE = A.DOMESTIC_START_CITY) as STARTCITY,
-    A.DOMESTIC_ARRIVAL_CITY AS ARRIVALCITY_CODE,
-    (SELECT CITY_KOR FROM AIRPORT_CITY_CODE WHERE CITY_CODE = A.DOMESTIC_ARRIVAL_CITY) as ARRIVALCITY,
+    A.DOMESTIC_NUM          AS "domesticNum",
+    A.DOMESTIC_START_TIME   AS "domesticStartTime",
+    A.DOMESTIC_ARRIVAL_TIME AS "domesticArrivalTime",
+    A.DOMESTIC_MON          AS "domesticMon",
+    A.DOMESTIC_TUE          AS "domesticTue",
+    A.DOMESTIC_WED          AS "domesticWed",
+    A.DOMESTIC_THU          AS "domesticThu",
+    A.DOMESTIC_FRI          AS "domesticFri",
+    A.DOMESTIC_SAT          AS "domesticSat",
+    A.DOMESTIC_SUN          AS "domesticSun",
+    A.DOMESTIC_STDATE       AS "domesticStdate",
+    A.DOMESTIC_EDDATE       AS "domesticEddate",
+    B.AIRLINE_KOREAN        AS "airlineKorean",
+    B.AIRLINE_ENGLISH       AS "airlineEnglish",
+    B.AIRLINE_HOMEPAGE_URL  AS "airlinehomepageUrl",
+    A.DOMESTIC_START_CITY   AS "startcityCode",
+    (SELECT CITY_KOR FROM AIRPORT_CITY_CODE WHERE CITY_CODE = A.DOMESTIC_START_CITY) AS "startcity",
+    A.DOMESTIC_ARRIVAL_CITY AS "arrivalcityCode",
+    (SELECT CITY_KOR FROM AIRPORT_CITY_CODE WHERE CITY_CODE = A.DOMESTIC_ARRIVAL_CITY) AS "arrivalcity",
     CASE WHEN FST IN ('11', '13', '14', '15') THEN '여객기'
          WHEN FST IN ('21', '22', '23') THEN '화물기'
-         ELSE '기타' END AS FLIGHT_PURPOSE
+         ELSE '기타' END AS "flightPurpose"
 FROM 
     AIRPORT_SCHEDULE_DOME A, 
     AIRPORT_AIRLINE_CODE B

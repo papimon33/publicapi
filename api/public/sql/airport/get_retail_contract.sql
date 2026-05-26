@@ -13,8 +13,14 @@ pw : hvc
 */
 
 --query
-SELECT 
-  GTEXT, NAME1, SANGHO, CONF_DATE, CONT_DATE, TYPE3_TEXT, TYPE4_TEXT 
+SELECT
+  GTEXT      AS "Gtext",
+  NAME1      AS "Name1",
+  SANGHO     AS "Sangho",
+  CONF_DATE  AS "ConfDate",
+  CONT_DATE  AS "ContDate",
+  TYPE3_TEXT AS "Type3Text",
+  TYPE4_TEXT AS "Type4Text"
   FROM OA_CONTRACTNO
 
 

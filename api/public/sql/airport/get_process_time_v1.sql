@@ -1,1 +1,14 @@
 -- API: GET /airport/process-time/v1
+SELECT
+    IATA_APCD,
+    PRC_HR,
+    OPR_STS_CD,
+    STY_TCT_AVG_A,
+    STY_TCT_AVG_B,
+    STY_TCT_AVG_C,
+    STY_TCT_AVG_D,
+    STY_TCT_AVG_ALL
+FROM M_WT_STY_TCT_LST
+WHERE 1=1
+-- [동적 조건] IATA_APCD → AND IATA_APCD = ?
+ORDER BY IATA_APCD, PRC_HR ASC

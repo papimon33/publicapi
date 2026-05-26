@@ -1,10 +1,10 @@
 -- API: GET /airport/code/info
 SELECT
-    CITY_CODE,
-    CITY_KOR ,
-    CITY_ENG ,
-    CITY_JPN ,
-    CITY_CHN
+    CITY_CODE  AS "cityCode",
+    CITY_KOR   AS "cityKorean",
+    CITY_ENG   AS "cityEnglish",
+    CITY_JPN   AS "cityJapan",
+    CITY_CHN   AS "cityChina"
 FROM
     AIRPORT_CITY_CODE
 WHERE

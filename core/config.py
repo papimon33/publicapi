@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     db_user: str
     db_password: str
     odbc_driver: str
+    env: str = "development"
 
     class Config:
         env_file = ".env"

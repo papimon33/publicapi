@@ -1,13 +1,13 @@
 -- API: GET /airport/montly-inout/cju
 SELECT
-    A_YYYYMM AS YM,
-    A_LINE AS LINE,
-    SUM(AIRPORT_T.A_FP) + SUM(AIRPORT_T.A_NP) + SUM(AIRPORT_T.A_TS) AS JEJUOUT
+    A_YYYYMM AS "ym",
+    A_LINE AS "line",
+    SUM(AIRPORT_T.A_FP) + SUM(AIRPORT_T.A_NP) + SUM(AIRPORT_T.A_TS) AS "jejuout"
 FROM AIRSTATISTICS.AIRPORT_T
 WHERE AIRPORT_T.A_IO = 'O'
     AND A_AIRPORT = 'CJU'
     AND A_USE = '0'
-    -- [동적 조건] flightDate → AND A_YYYYMM = ?
+    -- [동적 조건] ym → AND A_YYYYMM = ?
     --             line       → AND A_LINE = ?
 GROUP BY A_AIRPORT, A_YYYYMM, A_LINE
 ORDER BY A_YYYYMM DESC

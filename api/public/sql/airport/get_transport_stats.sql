@@ -1,15 +1,15 @@
 -- API: GET /airport/transport-stats/info
 SELECT 
-    DECODE(OD.KOR_N, '', AP.A_AIRPORT, OD.KOR_N)        AS AIRPORT          ,
-    IOC                                                 AS ArrFlgt          ,
-    OOC                                                 AS DepFlgt          ,
-    SUBOC                                               AS SubFlgt          ,
-    ArrPassenger                                        AS ArrPassenger     ,
-    DepPassenger                                        AS DepPassenger     ,
-    TotalPassenger                                      AS SubPassenger     ,
-    ArrCargo                                            AS ArrCargo         ,
-    DepCargo                                            AS DepCargo         ,
-    TotalCargo                                          AS SubCargo
+    DECODE(OD.KOR_N, '', AP.A_AIRPORT, OD.KOR_N)        AS "Airport"        ,
+    IOC                                                 AS "Arrflgt"        ,
+    OOC                                                 AS "depflgtn"       ,
+    SUBOC                                               AS "Subflgt"        ,
+    ArrPassenger                                        AS "Arrpassenger"   ,
+    DepPassenger                                        AS "Deppassenger"   ,
+    TotalPassenger                                      AS "subpassenger"   ,
+    ArrCargo                                            AS "Arrcargo"       ,
+    DepCargo                                            AS "Depcargo"       ,
+    TotalCargo                                          AS "subcargo"
 FROM 
 (
     SELECT 

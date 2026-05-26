@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from core.utils import json_to_xml, transform_for_json, _sql_capture
+from core.config import settings
 
 from core.logging_config import setup_logging
 from db.connection import create_pool, close_pool, get_connection, db_pool
@@ -84,10 +85,10 @@ async def access_log_middleware(request: Request, call_next):
 @app.middleware("http")
 async def response_format_middleware(request: Request, call_next):
     import json as _json
-    request_type = request.query_params.get("type", "json")
+    request_type = request.query_params.get("type", "xml")
 
-    # type=sql: DB 실행 없이 생성된 SQL을 반환
-    if request_type in ("sql", "SQL"):
+    # type=sql: DB 실행 없이 생성된 SQL을 반환 (개발 환경에서만 허용)
+    if request_type in ("sql", "SQL") and settings.env != "production":
         capture: dict = {}
         _sql_capture.set(capture)
         response = await call_next(request)

@@ -4,7 +4,7 @@ from typing import TypeVar, Generic, List, Optional
 T = TypeVar("T")
 
 class PublicRequest(BaseModel):
-    type: Optional[str] = Field(default="json", description="응답 형식 (xml/json)")
+    type: Optional[str] = Field(default="xml", description="응답 형식 (xml/json)")
 
 class PaginationParams(BaseModel):
     numOfRows: int = Field(default=10, ge=1, le=100, description="한 페이지 결과 수 (최대 100)")

@@ -27,7 +27,6 @@ async def fetch_aircraft_status(request: AircraftStatusRequest, page: Pagination
         ('schAirCode', "AND T1.AIRPORT = ?"),
         (('schStTime', 'schEdTime'), "AND T1.ACT_C_DATE||T1.STD BETWEEN ? AND ?"),
         ('Line', "AND T1.LINE = UPPER(?)"),
-        ('schIOType', "AND T1.IO = UPPER(?)"),
         ('schFln', "AND T2.AIRLINE_CODE2||T1.Fln LIKE UPPER('%'||?||'%')"),
         ('schFID', "AND FID = ?"),
         ('schAPLno', "AND APL_REG_NO= ?"),
@@ -53,17 +52,16 @@ async def fetch_flight_status(request: FlightStatusRequest, page: PaginationPara
 async def fetch_flight_status_taxfree(request: FlightStatusTaxfreeRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[FlightStatusTaxfreeResponse]:
     query = get_sql_query('get_flight_status_taxfree')
     query, params = build_conditions(query, request, [
-        ('searchDate', "AND SUBSTR(scheduledatetime,1,8) = ?"),
-        ('searchFrom', "AND SUBSTR(scheduledatetime,9,4) >= ?"),
-        ('searchTo', "AND SUBSTR(scheduledatetime,9,4) <= ?"),
-        ('fid', "AND fid = ?"),
-        ('flightId', "AND flightId = UPPER (?)"),
-        ('depCityCode', "AND depCityCode = UPPER(?)"),
-        ('depCity', "AND depCity LIKE '%'|| ? ||'%'"),
-        ('arrvCityCode', "AND arrvCityCode = UPPER (?)"),
-        ('arrvCity', "AND arrvCity LIKE '%'|| ? ||'%'"),
-        ('fgenType', "AND fgenType = UPPER (?)"),
-        ('fgenTime', "AND fgenTime >= ?"),
+        ('searchDate', 'AND SUBSTR("scheduledatetime",1,8) = ?'),
+        ('searchFrom', 'AND SUBSTR("scheduledatetime",9,4) >= ?'),
+        ('searchTo', 'AND SUBSTR("scheduledatetime",9,4) <= ?'),
+        ('fid', 'AND "fid" = ?'),
+        ('flightId', 'AND "flightid" = UPPER(?)'),
+        ('depCityCode', 'AND "depairportcode" = UPPER(?)'),
+        ('depCity', 'AND "depairport" LIKE \'%\'|| ? ||\'%\''),
+        ('arrvCityCode', 'AND "arrvairportcode" = UPPER(?)'),
+        ('arrvCity', 'AND "arrvairport" LIKE \'%\'|| ? ||\'%\''),
+        ('fgenType', 'AND "fgenType" = UPPER(?)'),
     ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
@@ -110,15 +108,15 @@ async def fetch_flight_status_arrival(request: FlightStatusArrivalRequest, page:
 async def fetch_flight_schedule_taxfree_int(request: FlightScheduleTaxfreeIntRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[FlightScheduleTaxfreeIntResponse]:
     query = get_sql_query('get_flight_schedule_taxfree_int')
     query, params = build_conditions(query, request, [
-        ('fid', "AND FID = ?"),
-        ('fgenTime', "AND fgenTime >= ?"),
-        ('flightId', "AND flightId = UPPER (?)"),
-        ('depCityCode', "AND depCityCode = UPPER(?)"),
-        ('depCity', "AND depCity LIKE '%'|| ? ||'%'"),
-        ('arrvCityCode', "AND arrvCityCode = UPPER (?)"),
-        ('arrvCity', "AND arrvCity LIKE '%'|| ? ||'%'"),
-        ('fgenType', "AND fgenType = UPPER (?)"),
-        ('schAirLine', "AND airlinecode= UPPER (?)"),
+        ('fid', 'AND "fid" = ?'),
+        ('fgenTime', 'AND "fgentime" >= ?'),
+        ('flightId', 'AND "flightid" = UPPER(?)'),
+        ('depCityCode', 'AND "depcitycode" = UPPER(?)'),
+        ('depCity', 'AND "depcity" LIKE \'%\'|| ? ||\'%\''),
+        ('arrvCityCode', 'AND "arrvcitycode" = UPPER(?)'),
+        ('arrvCity', 'AND "arrvcity" LIKE \'%\'|| ? ||\'%\''),
+        ('fgenType', 'AND "fgenType" = UPPER(?)'),
+        ('schAirLine', 'AND "airlinecode" = UPPER(?)'),
     ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
@@ -127,15 +125,15 @@ async def fetch_flight_schedule_taxfree_int(request: FlightScheduleTaxfreeIntReq
 async def fetch_flight_schedule_taxfree_dom(request: FlightScheduleTaxfreeDomRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[FlightScheduleTaxfreeDomResponse]:
     query = get_sql_query('get_flight_schedule_taxfree_dom')
     query, params = build_conditions(query, request, [
-        ('fid', "AND FID = ?"),
-        ('fgenTime', "AND fgenTime >= ?"),
-        ('flightId', "AND flightId = UPPER (?)"),
-        ('depCityCode', "AND depCityCode = UPPER(?)"),
-        ('depCity', "AND depCity LIKE '%'|| ? ||'%'"),
-        ('arrvCityCode', "AND arrvCityCode = UPPER (?)"),
-        ('arrvCity', "AND arrvCity LIKE '%'|| ? ||'%'"),
-        ('fgenType', "AND fgenType = UPPER (?)"),
-        ('schAirLine', "AND airlinecode= UPPER (?)"),
+        ('fid', 'AND "fid" = ?'),
+        ('fgenTime', 'AND "fgentime" >= ?'),
+        ('flightId', 'AND "flightid" = UPPER(?)'),
+        ('depCityCode', 'AND "depcitycode" = UPPER(?)'),
+        ('depCity', 'AND "depcity" LIKE \'%\'|| ? ||\'%\''),
+        ('arrvCityCode', 'AND "arrvcitycode" = UPPER(?)'),
+        ('arrvCity', 'AND "arrvcity" LIKE \'%\'|| ? ||\'%\''),
+        ('fgenType', 'AND "fgenType" = UPPER(?)'),
+        ('schAirLine', 'AND "airlineCode" = UPPER(?)'),
     ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
@@ -159,13 +157,13 @@ async def fetch_apron_pus(request: ApronPusRequest, page: PaginationParams, conn
 async def fetch_apron_gmp(request: ApronGmpRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ApronGmpResponse]:
     query = get_sql_query('get_apron_gmp')
     query, params = build_conditions(query, request, [
-        ('FLIGHT_DATE', "AND TO_CHAR(T1.ACT_DATE, 'yyyymmdd') = ?"),
-        ('AIRPORT', "AND T1.AIRPORT = ?"),
-        ('STD', "AND T1.STD = ?"),
-        ('ETD', "AND T1.ETD = ?"),
-        ('LINE', "AND T1.LINE = ?"),
-        ('IO', "AND T1.IO = ?"),
-        ('AIR_FLN', "AND T2.AIRLINE_CODE2||T1.Fln LIKE UPPER('%'||?||'%')"),
+        ('flightdate', "AND TO_CHAR(T1.ACT_DATE, 'yyyymmdd') = ?"),
+        ('airport', "AND T1.AIRPORT = ?"),
+        ('std', "AND T1.STD = ?"),
+        ('etd', "AND T1.ETD = ?"),
+        ('line', "AND T1.LINE = ?"),
+        ('io', "AND T1.IO = ?"),
+        ('airfln', "AND T2.AIRLINE_CODE2||T1.Fln LIKE UPPER('%'||?||'%')"),
     ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
@@ -174,13 +172,13 @@ async def fetch_apron_gmp(request: ApronGmpRequest, page: PaginationParams, conn
 async def fetch_apron_cju(request: ApronCjuRequest, page: PaginationParams, conn: aioodbc.Connection) -> PaginationResponse[ApronCjuResponse]:
     query = get_sql_query('get_apron_cju')
     query, params = build_conditions(query, request, [
-        ('FLIGHT_DATE', "AND TO_CHAR(T1.ACT_DATE, 'yyyymmdd') = ?"),
-        ('AIRPORT', "AND T1.AIRPORT = ?"),
-        ('STD', "AND T1.STD = ?"),
-        ('ETD', "AND T1.ETD = ?"),
-        ('LINE', "AND T1.LINE = ?"),
-        ('IO', "AND T1.IO = ?"),
-        ('AIR_FLN', "AND T2.AIRLINE_CODE2||T1.Fln LIKE UPPER('%'||?||'%')"),
+        ('flightdate', "AND TO_CHAR(T1.ACT_DATE, 'yyyymmdd') = ?"),
+        ('airport', "AND T1.AIRPORT = ?"),
+        ('std', "AND T1.STD = ?"),
+        ('etd', "AND T1.ETD = ?"),
+        ('line', "AND T1.LINE = ?"),
+        ('io', "AND T1.IO = ?"),
+        ('airfln', "AND T2.AIRLINE_CODE2||T1.Fln LIKE UPPER('%'||?||'%')"),
     ])
     count_query, paginated_query = wrap_pagenation_sql(query, page)
     total_count, result = await execute_query(conn, count_query, paginated_query, params)
